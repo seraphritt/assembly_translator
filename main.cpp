@@ -47,6 +47,7 @@ int main()
 {
     vector<string> ret = readFile("codigo.asm");
     for (string i : ret) {
+
         cout << i << endl;
     }
     return 0;
