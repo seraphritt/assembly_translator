@@ -8,6 +8,9 @@
 //version: gcc (x86_64-posix-seh-rev0, Built by MinGW-W64 project) 8.1.0
 using namespace std;
 
+bool tabeladesimbolos(){
+
+}
 
 void writeFile(){
     int numero;
@@ -30,6 +33,10 @@ void writeFile(){
 
 vector<string> readFile(string file_name){
     vector<string> conteudo;
+    vector<string> rotulo;
+    vector<string> operacao;
+    vector<string> operandos;
+    // comentarios serão ignorados
     string token;
     ifstream inFile; // inFile é o arquivo de leitura dos dados
     inFile.open(file_name, ios::in); // abre o arquivo para leitura
@@ -39,7 +46,11 @@ vector<string> readFile(string file_name){
         abort();
     }
     while(inFile >> token)
-        conteudo.push_back(token);
+    if(token[token.length() - 1] == ":"){
+        // procurar rotulo na tabela de rotulos
+            // se achar o rotulo, devolva erro, símbolo redefinido (semântico)
+        // se não, adicionar o rotulo na tabela de rótulos e o contador posição (contador de memória)
+    }
     inFile.close();
     return conteudo;
 }
@@ -47,7 +58,6 @@ int main()
 {
     vector<string> ret = readFile("codigo.asm");
     for (string i : ret) {
-
         cout << i << endl;
     }
     return 0;
