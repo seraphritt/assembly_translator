@@ -26,7 +26,10 @@ void writeFile(){
 }
 
 void readFile(){
-    // implementar
+    string secao;
+
+
+
 }
 int main()
 {
