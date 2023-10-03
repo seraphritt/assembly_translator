@@ -6,10 +6,14 @@
 #include <vector>
 
 //version: gcc (x86_64-posix-seh-rev0, Built by MinGW-W64 project) 8.1.0
+//using C++17
 using namespace std;
 
-typedef vector<tuple<string, int>> type_symbols_table;
-type_symbols_table symbols_table;
+typedef vector<tuple<string, int>> table_type;
+typedef vector<tuple<string, int, string>> instr_table_type;
+table_type symbols_table;
+// instrução, num maximo de argumentos, OP code
+instr_table_type instr_table = {make_tuple("ADD", 2, "01"), make_tuple("SUB", 2, "02"), make_tuple("MUL", 2, "03"), make_tuple("DIV", 2, "04"), make_tuple("JMP", 2, "05"), make_tuple("JMPN", 2, "06"), make_tuple("JMPP", 2, "07"), make_tuple("JMPZ", 2, "08"), make_tuple("COPY", 3, "09"), make_tuple("LOAD", 2, "10"), make_tuple("STORE", 2, "11"), make_tuple("INPUT", 2, "12"), make_tuple("OUTPUT", 2, "13"), make_tuple("STOP", 1, "14")};
 
 bool findInSymbolsTable(string label, int posit){
     for(auto [X, Y]: symbols_table ){
@@ -55,6 +59,7 @@ vector<string> readFile(string file_name){
         abort();
     }
     while(inFile >> token){
+        cout << token << endl;
         if(token[token.size() - 1] == ':'){
             if(findInSymbolsTable(token, 0)){
                 cout << "Erro semantico: rotulo redefinido na linha " << 0;
@@ -74,6 +79,9 @@ int main()
     vector<string> ret = readFile("codigo.asm");
     for (string i : ret) {
         cout << i << endl;
+    }
+    for (auto [X, Y, Z] : instr_table){
+        cout << X << " " << Y << " " << Z << endl;
     }
     return 0;
 }
