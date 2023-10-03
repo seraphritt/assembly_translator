@@ -61,30 +61,20 @@ vector<string> readFile(string file_name){
     vector<string> operacao;
     vector<string> operandos;
     // comentarios serão ignorados
+    string token;
     ifstream inFile; // inFile é o arquivo de leitura dos dados
-    inFile.open(file_name);
-    if (!inFile)
+    inFile.open(file_name, ios::in); // abre o arquivo para leitura
+    if (! inFile)
     {
         cout << "Arquivo codigo.asm nao pode ser aberto" << endl;
         abort();
     }
-    while(inFile){
-        string line;
-        string token;
-        getline(inFile, line);
-        cout << line;
+    while(inFile >> token){
+        cout << token << endl;
         if(token[token.size() - 1] == ':'){
             if(findInSymbolsTable(token, contador_posicao)){
                 cout << "Erro semantico: rotulo redefinido na linha " << 0;
                 // retorna erro dizendo que na linha tal achou: redefinição de rótulo (semântico)
-            }
-        }
-        else{
-            if(findInIntrTable(token, contador_posicao)){
-                cout << "Achou" << endl;
-            }else{
-                cout << "Procurar na tabela de diretivas" << endl;
-                // procurar na tabela de diretivas
             }
         }
     }
