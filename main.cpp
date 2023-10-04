@@ -28,7 +28,12 @@ bool findInIntrTable(string instr, int posit){
     return false;
 }
 bool findInDireTable(string dire, int posit){
-
+    for(auto X: dire_table){
+        if(X == dire){
+            return true;    // se achar o token na tabela de diretivas, retorna true
+        }
+    }
+    return false;   // retorna falso
 }
 bool findInSymbolsTable(string label, int posit){
     for(auto [X, Y]: symbols_table ){
@@ -83,7 +88,9 @@ vector<string> readFile(string file_name){
         }continue;
         else{
             if(!findInIntrTable(token, contador_posicao){ // se não achar a instrução na tabela de instruções, procurar na tabela de diretivas
-                findInDireTable(token, contador_linha);
+                if(!findInDireTable(token, contador_linha){
+                    cout << "Erro sintático: operação não identificada " << endl;
+                   }
                }
         }
     }
