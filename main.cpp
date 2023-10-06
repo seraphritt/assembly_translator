@@ -86,14 +86,12 @@ vector<string> readFile(string file_name){
                 // retorna erro dizendo que na linha tal achou: redefinição de rótulo (semântico)
             }
         }continue;
-        else{
-            if(!findInIntrTable(token, contador_posicao){ // se não achar a instrução na tabela de instruções, procurar na tabela de diretivas
-                if(!findInDireTable(token, contador_linha){
+        if(!findInIntrTable(token, contador_posicao)){ // se não achar a instrução na tabela de instruções, procurar na tabela de diretivas
+                if(!findInDireTable(token, contador_linha)){
                     cout << "Erro sintático: operação não identificada " << endl;
                    }
                }
         }
-    }
 
         // procurar rotulo na tabela de rotulos
             // se achar o rotulo, devolva erro, símbolo redefinido (semântico)
