@@ -12,7 +12,7 @@ using namespace std;
 typedef vector<tuple<string, int>> table_type;
 typedef vector<tuple<string, int, string>> instr_table_type;
 table_type symbols_table;
-vector<string> dire_table = {"SPACE", "CONST"}; // diretivas
+vector<string> dire_table = {"SPACE", "CONST", "SECAO DATA", "SECAO TEXTO"}; // diretivas
 // instrução, num maximo de argumentos, OP code
 vector<string> conteudo; // vetor que guarda o que será escrito no arquivo objeto
 instr_table_type instr_table = {make_tuple("ADD", 2, "01"), make_tuple("SUB", 2, "02"), make_tuple("MUL", 2, "03"), make_tuple("DIV", 2, "04"), make_tuple("JMP", 2, "05"), make_tuple("JMPN", 2, "06"), make_tuple("JMPP", 2, "07"), make_tuple("JMPZ", 2, "08"), make_tuple("COPY", 3, "09"), make_tuple("LOAD", 2, "10"), make_tuple("STORE", 2, "11"), make_tuple("INPUT", 2, "12"), make_tuple("OUTPUT", 2, "13"), make_tuple("STOP", 1, "14")};
@@ -23,12 +23,15 @@ int contador_posicao = 0;
 bool findInIntrTable(string instr, int posit){
     istringstream a(instr); // tipo para usar o getline() e separar em espaços
     string s;
+    vector<string> instr_and_operandos;
     while (getline( a, s, ' ') ) {
         if(s != " ")
-            cout << s << endl;
+            instr_and_operandos.push_back(s);
     }
+    cout << instr_and_operandos[0] << endl;
+
     for(auto [X, Y, Z]: instr_table){
-        if(X == instr){
+        if(X == instr_and_operandos[0]){
             contador_posicao = contador_posicao + Y;
             return true;
         }
@@ -78,15 +81,27 @@ void to_token(string linha){
     int comment = 0;
     int index_comeco = 0;
     int rotulo_fim  = 0;
+    bool label = false;
+    bool entrou = false;
     for(int i = 0; i < linha.size(); i++){ // se tiver label, acha e coloca na tabela de símbolos
-        if(linha[i] == ' '){
+        if((linha[i] != ' ') & (linha[i] != '\t') & (!entrou)){
             index_comeco = i;
+            entrou = true;
             continue;
         }
         if(linha[i] == ':'){ // se achar 2 pontos pega tudo que vem antes dos dois pontos e isso é o rótulo/label
+            label = true; // se tiver essa flag usa-se o rotulo_fim, ou seja, a ultima posiçao do rótulo
             token = linha.substr(index_comeco, i - index_comeco);
+            cout << "linha" << linha << endl;
             cout << token << endl;
-            rotulo_fim = i;
+            int j = i + 1;
+            while(j<linha.size()){
+                if(linha[j] != ' ' & linha[j] != '\t'){
+                    rotulo_fim = j;
+                    break;
+                }
+                j++;
+            }
             if(findInSymbolsTable(token, contador_posicao)){
                cout << "ERRO SEMANTICO: SIMBOLO REDEFINIDO" << endl;
                } // se achou na tabela de símobolos tem erro
@@ -96,8 +111,16 @@ void to_token(string linha){
             comment = i;
         }
     }
-    token = linha.substr(rotulo_fim, linha.size() - rotulo_fim - (linha.size() - comment));
-    cout << "FF" << token << endl;
+    int offset = 0;
+    if(comment != 0){
+        offset = linha.size() - comment;
+    }
+    if(label){
+        token = linha.substr(rotulo_fim, linha.size() - offset);
+    }else{
+        token = linha.substr(index_comeco, linha.size() - offset);
+    }
+    cout << "too" << token << endl;
     if(!findInIntrTable(token, contador_posicao)){
         if(!findInDireTable(token)){
             cout << "ERRO SINTATICO: OPERACAO NAO RECONHECIDA" << endl;
