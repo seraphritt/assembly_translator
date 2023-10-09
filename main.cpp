@@ -14,9 +14,12 @@ typedef vector<tuple<string, int, string>> instr_table_type;
 table_type symbols_table;
 vector<string> dire_table = {"SPACE", "CONST"}; // diretivas
 // instrução, num maximo de argumentos, OP code
+vector<string> conteudo; // vetor que guarda o que será escrito no arquivo objeto
 instr_table_type instr_table = {make_tuple("ADD", 2, "01"), make_tuple("SUB", 2, "02"), make_tuple("MUL", 2, "03"), make_tuple("DIV", 2, "04"), make_tuple("JMP", 2, "05"), make_tuple("JMPN", 2, "06"), make_tuple("JMPP", 2, "07"), make_tuple("JMPZ", 2, "08"), make_tuple("COPY", 3, "09"), make_tuple("LOAD", 2, "10"), make_tuple("STORE", 2, "11"), make_tuple("INPUT", 2, "12"), make_tuple("OUTPUT", 2, "13"), make_tuple("STOP", 1, "14")};
 int contador_linha = 1;
 int contador_posicao = 0;
+
+
 bool findInIntrTable(string instr, int posit){
     for(auto [X, Y, Z]: instr_table){
         if(X == instr){
@@ -63,9 +66,34 @@ void writeFile(){
     }
     outFile.close(); // se o programador omitir a chamada ao método close
 }
-
+void to_token(string linha){
+    bool comeco = true;
+    string token;
+    int index_comeco = 0;
+    for(int i = 0; i < linha.size(); i++){
+        if((linha[i] == ' ' || i == linha.size() - 1) & (!comeco)){
+            token = linha.substr(index_comeco, (i - index_comeco) + 1);
+            cout << token << endl;
+            comeco = true;
+            continue;
+        }
+        if(linha[i] == ' '){
+            comeco = true;
+            continue;
+        }else if((linha[i] != ' ') & (comeco)){
+            comeco = false;
+            index_comeco = i;
+        }
+        if(linha[i] == ':'){
+            token = linha.substr(index_comeco, i - index_comeco);
+            findInSymbolsTable(token, contador_linha);
+            comeco = true;
+        }
+    }
+}
 vector<string> readFile(string file_name){
     vector<string> conteudo;
+    bool space = false;
     vector<string> rotulo;
     vector<string> operacao;
     vector<string> operandos;
@@ -78,24 +106,36 @@ vector<string> readFile(string file_name){
         cout << "Arquivo codigo.asm nao pode ser aberto" << endl;
         abort();
     }
-    while(inFile >> token){
-        cout << token << endl;
+    while(inFile){ // tem que ler linha por linha e não palavra por palavra
+        // criar função que separa que lê uma linha e separa os espaços e os operandos
+        string line;
+        getline(inFile, line);
+        cout << line << endl;
+        to_token(line);
+        /* cout << token << endl;
         if(token[token.size() - 1] == ':'){
             if(findInSymbolsTable(token, contador_posicao)){
                 cout << "Erro semantico: rotulo redefinido na linha " << contador_linha;
                 // retorna erro dizendo que na linha tal achou: redefinição de rótulo (semântico)
             }
-        }continue;
-        if(!findInIntrTable(token, contador_posicao)){ // se não achar a instrução na tabela de instruções, procurar na tabela de diretivas
-                if(!findInDireTable(token, contador_linha)){
-                    cout << "Erro sintático: operação não identificada " << endl;
-                   }
-               }
         }
+        if(!findInIntrTable(token, contador_posicao)){ // se não achar a instrução na tabela de instruções, procurar na tabela de diretivas
+            if(!findInDireTable(token, contador_linha)){
+                cout << "Erro sintático: operação não identificada " << endl;
+            }
+            else{
+                if(token == "SPACE"){
+                    space = true;
+                    continue;
+                }
+            }
+        }
+    } */
 
         // procurar rotulo na tabela de rotulos
             // se achar o rotulo, devolva erro, símbolo redefinido (semântico)
         // se não, adicionar o rotulo na tabela de rótulos e o contador posição (contador de memória)
+    }
     inFile.close();
     return conteudo;
 }
