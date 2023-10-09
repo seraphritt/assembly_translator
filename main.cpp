@@ -21,6 +21,12 @@ int contador_posicao = 0;
 
 
 bool findInIntrTable(string instr, int posit){
+    istringstream a(instr); // tipo para usar o getline() e separar em espaços
+    string s;
+    while (getline( a, s, ' ') ) {
+        if(s != " ")
+            cout << s << endl;
+    }
     for(auto [X, Y, Z]: instr_table){
         if(X == instr){
             contador_posicao = contador_posicao + Y;
@@ -30,7 +36,7 @@ bool findInIntrTable(string instr, int posit){
     // retorna falso e irá procurar na tabela de diretivas
     return false;
 }
-bool findInDireTable(string dire, int posit){
+bool findInDireTable(string dire){
     for(auto X: dire_table){
         if(X == dire){
             return true;    // se achar o token na tabela de diretivas, retorna true
@@ -69,27 +75,35 @@ void writeFile(){
 void to_token(string linha){
     bool comeco = true;
     string token;
+    int comment = 0;
     int index_comeco = 0;
-    for(int i = 0; i < linha.size(); i++){
-        if((linha[i] == ' ' || i == linha.size() - 1) & (!comeco)){
-            token = linha.substr(index_comeco, (i - index_comeco) + 1);
-            cout << token << endl;
-            comeco = true;
-            continue;
-        }
+    int rotulo_fim  = 0;
+    for(int i = 0; i < linha.size(); i++){ // se tiver label, acha e coloca na tabela de símbolos
         if(linha[i] == ' '){
-            comeco = true;
-            continue;
-        }else if((linha[i] != ' ') & (comeco)){
-            comeco = false;
             index_comeco = i;
+            continue;
         }
-        if(linha[i] == ':'){
+        if(linha[i] == ':'){ // se achar 2 pontos pega tudo que vem antes dos dois pontos e isso é o rótulo/label
             token = linha.substr(index_comeco, i - index_comeco);
-            findInSymbolsTable(token, contador_linha);
-            comeco = true;
+            cout << token << endl;
+            rotulo_fim = i;
+            if(findInSymbolsTable(token, contador_posicao)){
+               cout << "ERRO SEMANTICO: SIMBOLO REDEFINIDO" << endl;
+               } // se achou na tabela de símobolos tem erro
+
+        }
+        if(linha[i] == ';'){ // anota a posicao onde está o comentario, para que o que vier depois seja ignorado
+            comment = i;
         }
     }
+    token = linha.substr(rotulo_fim, linha.size() - rotulo_fim - (linha.size() - comment));
+    cout << "FF" << token << endl;
+    if(!findInIntrTable(token, contador_posicao)){
+        if(!findInDireTable(token)){
+            cout << "ERRO SINTATICO: OPERACAO NAO RECONHECIDA" << endl;
+        }
+    }
+
 }
 vector<string> readFile(string file_name){
     vector<string> conteudo;
