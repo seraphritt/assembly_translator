@@ -19,4 +19,4 @@ Utilizamos C++ 17.
 # TERMINAL WINDOWS
 1. Verificar se o g++ está instalado, com o comando ``g++ --version``, atentando-se à versão do compilador.
 2. Para compilar, o comando é: ``g++ -std=c++17 main.cpp -o main``.
-3. Para executar, digite: ``./main``.
+3. Para executar, digite: ``.\main``.
