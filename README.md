@@ -12,7 +12,7 @@ Utilizamos C++ 17.
 # CODE::BLOCKS 20.03
 1. Instalar o codeblocks-20.03mingw-setup.exe (https://www.codeblocks.org/downloads/binaries/#imagesoswindows48pnglogo-microsoft-windows), sem mudar nada no processo da instalação, apenas clicando em "Next".
 2. Ao abrir o codeblocks pela primeira vez, será detectado o compilador GNU GCC. Selecionar "OK".
-3. Para evitar mensagem de erro de versão no compilador, adicione as flags "-std=c17" e "-std=c++17" indo em Settings > Compiler > Compiler Flags, conforme a imagem a seguir:
+3. Para evitar mensagem de erro de versão no compilador, adicione a flag e "-std=c++17" indo em Settings > Compiler > Compiler Flags, conforme a imagem a seguir:
 
 ![Compiler Settings](https://drive.google.com/uc?export=view&id=1droauMWWHUefOvngrm2W97Klhb5NmcDD)
 
