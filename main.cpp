@@ -5,7 +5,7 @@
 #include <iomanip>
 #include <vector>
 
-//version: gcc (x86_64-posix-seh-rev0, Built by MinGW-W64 project) 8.1.0
+//version: g++ (x86_64-posix-seh-rev0, Built by MinGW-W64 project) 8.1.0
 //using C++17
 using namespace std;
 
@@ -21,18 +21,21 @@ int contador_posicao = 0;
 
 
 bool findInIntrTable(string instr, int posit){
-    istringstream a(instr); // tipo para usar o getline() e separar em espaços
-    string s;
-    vector<string> instr_and_operandos;
-    while (getline( a, s, ' ') ) {
-        if(s != " ")
-            instr_and_operandos.push_back(s);
-    }
+    if(instr != "\0"){
+        istringstream a(instr); // tipo para usar o getline() e separar em espaços
+        string s;
+        cout << "instr" << instr << endl;
+        vector<string> instr_and_operandos;
+        while (getline( a, s, ' ') ) {
+            if(s != " ")
+                instr_and_operandos.push_back(s);
+        }
 
-    for(auto [X, Y, Z]: instr_table){
-        if(X == instr_and_operandos[0]){
-            contador_posicao = contador_posicao + Y;
-            return true;
+        for(auto [X, Y, Z]: instr_table){
+            if(X == instr_and_operandos[0]){
+                contador_posicao = contador_posicao + Y;
+                return true;
+            }
         }
     }
     // retorna falso e irá procurar na tabela de diretivas
@@ -214,10 +217,16 @@ int main()
     }
     out.close();
     in.close();
-    if (out)
+    if (out){
         cout << "SUCESSO" << endl;
-    else
+    }
+    else{
         return 1;
+    }
     readFile("codigo_no_tab.asm");
+    for(auto [X, Y, Z]: instr_table){
+        cout << "X: " << X << "Y: " << Y << "Z: " << Z << endl;
+    }
+
     return 0;
 }
