@@ -14,7 +14,7 @@ Utilizamos C++ 17.
 2. Ao abrir o codeblocks pela primeira vez, será detectado o compilador GNU GCC. Selecionar "OK".
 3. Para evitar mensagem de erro de versão no compilador, adicione a flag e "-std=c++17" indo em Settings > Compiler > Compiler Flags, conforme a imagem a seguir:
 
-![Compiler Settings](https://drive.google.com/uc?export=view&id=1droauMWWHUefOvngrm2W97Klhb5NmcDD)
+![Compiler Settings](https://drive.google.com/uc?export=view&id=1OBPT2n-3AhccdfLatkHrK876BUOv0PAv)
 
 # TERMINAL WINDOWS
 1. Verificar se o g++ está instalado, com o comando ``g++ --version``, atentando-se à versão do compilador.
