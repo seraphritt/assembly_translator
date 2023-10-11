@@ -13,8 +13,8 @@ typedef vector<tuple<string, int>> table_type;
 typedef vector<tuple<string, int, string>> instr_table_type;
 table_type symbols_table;
 vector<string> dire_table = {"SPACE", "CONST", "SECAO DATA", "SECAO TEXT"}; // diretivas
-// instrução, num maximo de argumentos, OP code
-vector<string> conteudo; // vetor que guarda o que será escrito no arquivo objeto
+// instruï¿½ï¿½o, num maximo de argumentos, OP code
+vector<string> conteudo; // vetor que guarda o que serï¿½ escrito no arquivo objeto
 instr_table_type instr_table = {make_tuple("ADD", 2, "01"), make_tuple("SUB", 2, "02"), make_tuple("MUL", 2, "03"), make_tuple("DIV", 2, "04"), make_tuple("JMP", 2, "05"), make_tuple("JMPN", 2, "06"), make_tuple("JMPP", 2, "07"), make_tuple("JMPZ", 2, "08"), make_tuple("COPY", 3, "09"), make_tuple("LOAD", 2, "10"), make_tuple("STORE", 2, "11"), make_tuple("INPUT", 2, "12"), make_tuple("OUTPUT", 2, "13"), make_tuple("STOP", 1, "14")};
 int contador_linha = 1;
 int contador_posicao = 0;
@@ -22,7 +22,7 @@ int contador_posicao = 0;
 
 bool findInIntrTable(string instr, int posit){
     if(instr != "\0"){
-        istringstream a(instr); // tipo para usar o getline() e separar em espaços
+        istringstream a(instr); // tipo para usar o getline() e separar em espaï¿½os
         string s;
         cout << "instr" << instr << endl;
         vector<string> instr_and_operandos;
@@ -38,7 +38,7 @@ bool findInIntrTable(string instr, int posit){
             }
         }
     }
-    // retorna falso e irá procurar na tabela de diretivas
+    // retorna falso e irï¿½ procurar na tabela de diretivas
     return false;
 }
 bool findInDireTable(string dire){
@@ -88,19 +88,19 @@ void writeFile(){
     int numero;
     string nome;
     ofstream outFile; //
-    outFile.open("saída.txt", ios::out); // abre o arquivo para escrita
+    outFile.open("saï¿½da.txt", ios::out); // abre o arquivo para escrita
     if (! outFile)
     {
         cout << "Arquivo saida.txt nao pode ser aberto" << endl;
         abort();
     }
-    cout << "Entre com o numero e nome do funcionário\n" << "Fim de arquivo (Ctrl-Z) termina a entrada de dados\n\n? ";
+    cout << "Entre com o numero e nome do funcionï¿½rio\n" << "Fim de arquivo (Ctrl-Z) termina a entrada de dados\n\n? ";
     while(cin >> numero >> nome)
     {
         outFile << numero << " " << nome << "\n";
         cout << "?";
     }
-    outFile.close(); // se o programador omitir a chamada ao método close
+    outFile.close(); // se o programador omitir a chamada ao mï¿½todo close
 }
 void to_token(string linha){
     string token;
@@ -109,14 +109,14 @@ void to_token(string linha){
     int rotulo_fim  = 0;
     bool label = false;
     bool entrou = false;
-    for(int i = 0; i < linha.size(); i++){ // se tiver label, acha e coloca na tabela de símbolos
+    for(int i = 0; i < linha.size(); i++){ // se tiver label, acha e coloca na tabela de sï¿½mbolos
         if((linha[i] != ' ') & (linha[i] != '\t') & (!entrou)){
             index_comeco = i;
             entrou = true;
             continue;
         }
-        if(linha[i] == ':'){ // se achar 2 pontos pega tudo que vem antes dos dois pontos e isso é o rótulo/label
-            label = true; // se tiver essa flag usa-se o rotulo_fim, ou seja, a ultima posiçao do rótulo
+        if(linha[i] == ':'){ // se achar 2 pontos pega tudo que vem antes dos dois pontos e isso ï¿½ o rï¿½tulo/label
+            label = true; // se tiver essa flag usa-se o rotulo_fim, ou seja, a ultima posiï¿½ao do rï¿½tulo
             token = linha.substr(index_comeco, i - index_comeco);
             int j = i + 1;
             while(j<linha.size()){
@@ -128,10 +128,10 @@ void to_token(string linha){
             }
             if(findInSymbolsTable(token, contador_posicao)){
                cout << "ERRO SEMANTICO: SIMBOLO REDEFINIDO" << endl;
-               } // se achou na tabela de símobolos tem erro
+               } // se achou na tabela de sï¿½mobolos tem erro
 
         }
-        if(linha[i] == ';'){ // anota a posicao onde está o comentario, para que o que vier depois seja ignorado
+        if(linha[i] == ';'){ // anota a posicao onde estï¿½ o comentario, para que o que vier depois seja ignorado
             comment = i;
         }
     }
@@ -155,17 +155,17 @@ void readFile(string file_name){
     vector<string> rotulo;
     vector<string> operacao;
     vector<string> operandos;
-    // comentarios serão ignorados
+    // comentarios serï¿½o ignorados
     string token;
-    ifstream inFile; // inFile é o arquivo de leitura dos dados
+    ifstream inFile; // inFile ï¿½ o arquivo de leitura dos dados
     inFile.open(file_name, ios::in); // abre o arquivo para leitura
     if (!inFile)
     {
         cout << "Arquivo codigo.asm nao pode ser aberto" << endl;
         abort();
     }
-    while(inFile){ // tem que ler linha por linha e não palavra por palavra
-        // criar função que separa que lê uma linha e separa os espaços e os operandos
+    while(inFile){ // tem que ler linha por linha e nï¿½o palavra por palavra
+        // criar funï¿½ï¿½o que separa que lï¿½ uma linha e separa os espaï¿½os e os operandos
         string line;
         getline(inFile, line);
         to_token(line);
@@ -176,12 +176,12 @@ void readFile(string file_name){
         if(token[token.size() - 1] == ':'){
             if(findInSymbolsTable(token, contador_posicao)){
                 cout << "Erro semantico: rotulo redefinido na linha " << contador_linha;
-                // retorna erro dizendo que na linha tal achou: redefinição de rótulo (semântico)
+                // retorna erro dizendo que na linha tal achou: redefiniï¿½ï¿½o de rï¿½tulo (semï¿½ntico)
             }
         }
-        if(!findInIntrTable(token, contador_posicao)){ // se não achar a instrução na tabela de instruções, procurar na tabela de diretivas
+        if(!findInIntrTable(token, contador_posicao)){ // se nï¿½o achar a instruï¿½ï¿½o na tabela de instruï¿½ï¿½es, procurar na tabela de diretivas
             if(!findInDireTable(token, contador_linha)){
-                cout << "Erro sintático: operação não identificada " << endl;
+                cout << "Erro sintï¿½tico: operaï¿½ï¿½o nï¿½o identificada " << endl;
             }
             else{
                 if(token == "SPACE"){
@@ -193,19 +193,105 @@ void readFile(string file_name){
     } */
 
         // procurar rotulo na tabela de rotulos
-            // se achar o rotulo, devolva erro, símbolo redefinido (semântico)
-        // se não, adicionar o rotulo na tabela de rótulos e o contador posição (contador de memória)
+            // se achar o rotulo, devolva erro, sï¿½mbolo redefinido (semï¿½ntico)
+        // se nï¿½o, adicionar o rotulo na tabela de rï¿½tulos e o contador posiï¿½ï¿½o (contador de memï¿½ria)
+    }
+    inFile.close();
+}
+void secondPass(string file_name){
+    // PSEUDOCODIGO
+    // Contador_posiÃ§Ã£o = 0
+    // Contador_linha = 1
+    // Enquanto arquivo fonte nÃ£o chegou ao fim, faÃ§a:
+    //     ObtÃ©m uma linha do fonte
+    //     Separa os elementos da linha: rÃ³tulo,operaÃ§Ã£o,operandos,comentÃ¡rios
+    //     Ignora o rÃ³tulo e os comentÃ¡rios
+    //     Para cada operando que Ã© sÃ­mbolo
+    //     Procura operando na TS
+    //         Se nÃ£o achou: Erro, sÃ­mbolo indefinido
+    //     Procura operaÃ§Ã£o na tabela de instruÃ§Ãµes
+    //     Se achou:
+    //         contador_posiÃ§Ã£o = contador_posiÃ§Ã£o + tamanho da instruÃ§Ã£o
+    //         Se nÃºmero e tipo dos operandos estÃ¡ correto entÃ£o
+    //             gera cÃ³digo objeto conforme formato da instruÃ§Ã£o
+    //         SenÃ£o: Erro, operando invÃ¡lido
+    //     SenÃ£o:
+    //         Procura operaÃ§Ã£o na tabela de diretivas
+    //         Se achou:
+    //             Chama subrotina que executa a diretiva
+    //             Contador_posiÃ§Ã£o = valor retornado pela subrotina
+    //         SenÃ£o: Erro, operaÃ§Ã£o nÃ£o identificada
+    //     Contador_linha = contador_linha + 1
+
+    contador_linha = 1; // zerando o contador_linha
+    contador_posicao = 0; // zerando o contador_posicao
+
+    string token;
+    ifstream inFile; // inFile e o arquivo de leitura dos dados
+    inFile.open(file_name, ios::in); // abre o arquivo para leitura
+    if (!inFile)
+    {
+        cout << "Arquivo codigo.asm nao pode ser aberto" << endl;
+        abort();
+    }
+    while(inFile){ // TODO: getline nÃ£o deveria ser dentro do WHILE?
+        string line;
+        getline(inFile, line);
+        
+        int index_comeco = 0;
+        bool entrou = false;
+        int label_posit = 0;
+        int comment_posit = 0;
+
+        for(int i = 0; i < line.size(); i++){
+            if((line[i] != ' ') & (line[i] != '\t') & (!entrou)){
+                index_comeco = i;
+                entrou = true;
+                continue;
+            }
+            if(line[i] == ':'){
+                label_posit = i;
+            }
+            if(line[i] == ';'){
+                comment_posit = i;
+            }
+        }
+
+        int offset = 0;
+
+        if(label_posit != 0){
+            offset += line.size() + label_posit; // ignora os rotulos // TODO: Aqui tem que colocar - 1?
+        }
+        if(comment_posit != 0){
+            offset += line.size() - comment_posit;
+        }
+
+        // TODO: criar funcao que encontra operando como simbolo na linha
+
+        // TODO: verificar se o operando encontrado existe na TS
+        
+        // if(label){
+        //     token = linha.substr(rotulo_fim, linha.size() - offset);
+        // }else{
+        //     token = linha.substr(index_comeco, linha.size() - offset);
+        // }
+        // if(!findInIntrTable(token, contador_posicao)){
+        //     if(!findInDireTable(token)){
+        //         cout << "ERRO SINTATICO: OPERACAO NAO RECONHECIDA" << endl;
+        //     }
+        // }
+
     }
     inFile.close();
 }
 int main()
 {
     ifstream in("codigo.asm");
-    ofstream out("codigo_no_tab.asm"); // codigo sem tab, transformando todos os tabs em espaços
+    ofstream out("codigo_no_tab.asm"); // codigo sem tab, transformando todos os tabs em espaï¿½os
 
     if (!in || !out){
         cout << "ERRO AO LER ARQUIVO" << endl;
-        return 1;
+        return 1; // retorna um indicando o erro
     }
 
     char c;
@@ -225,8 +311,12 @@ int main()
     }
     readFile("codigo_no_tab.asm");
     for(auto [X, Y, Z]: instr_table){
-        cout << "X: " << X << "Y: " << Y << "Z: " << Z << endl;
+        cout << "X: " << X << " Y: " << Y << " Z: " << Z << endl;
     }
+
+    // for(auto [A, B]: symbols_table){
+    //     cout << "A: " << A << " B: " << B << endl;
+    // }
 
     return 0;
 }
