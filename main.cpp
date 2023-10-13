@@ -8,7 +8,7 @@
 //version: g++ (x86_64-posix-seh-rev0, Built by MinGW-W64 project) 8.1.0
 //using C++17
 using namespace std;
-
+vector<string> instr_and_operandos;
 typedef vector<tuple<string, int>> table_type;
 typedef vector<tuple<string, int, string>> instr_table_type;
 table_type symbols_table;
@@ -25,9 +25,8 @@ bool findInIntrTable(string instr, int posit){
         istringstream a(instr); // tipo para usar o getline() e separar em espa�os
         string s;
         cout << "instr" << instr << endl;
-        vector<string> instr_and_operandos;
         while (getline( a, s, ' ') ) {
-            if(s != " ")
+            if((s != ""))
                 instr_and_operandos.push_back(s);
         }
 
@@ -225,8 +224,31 @@ void secondPass(string file_name){
 
     contador_linha = 1; // zerando o contador_linha
     contador_posicao = 0; // zerando o contador_posicao
+    // imprimindo instruções e operações e tabela de símbolos
+    // na segunda passagem olhamos apenas para as operações e os operandos, apenas para ajudar a debugar
+    bool operando = false; // primeiro vem a operação e depois o operando
+    for(auto X : instr_and_operandos){
+        cout << "INSTR AND OPERANDOS: " << X << endl;
+    }
+    for(auto [X, Y]: symbols_table ){
+        cout << "TABELA DE SIMBOLOS: " << "X: " << X << " Y: " << Y << endl;
+    }
 
-    string token;
+    for(auto W : instr_and_operandos){ // se for uma operação, olha o operando. se o operando for um símbolo, procura na tabela de símbolos
+        if(operando){
+            cout << "OPERANDO: " << W << endl; // TODO: Separar operandos do copy em 2, porque eles são separados por vírgula na msm linha
+            operando = false;
+            continue;
+        }
+        for(auto [X, Y, Z] : instr_table){
+            if(W == X){
+                operando = true;
+                break;
+            }
+        }
+    }
+
+    /*string token;
     ifstream inFile; // inFile e o arquivo de leitura dos dados
     inFile.open(file_name, ios::in); // abre o arquivo para leitura
     if (!inFile)
@@ -237,7 +259,7 @@ void secondPass(string file_name){
     while(inFile){ // TODO: getline não deveria ser dentro do WHILE?
         string line;
         getline(inFile, line);
-        
+
         int index_comeco = 0;
         bool entrou = false;
         int label_posit = 0;
@@ -265,11 +287,12 @@ void secondPass(string file_name){
         if(comment_posit != 0){
             offset += line.size() - comment_posit;
         }
+        */
 
         // TODO: criar funcao que encontra operando como simbolo na linha
 
         // TODO: verificar se o operando encontrado existe na TS
-        
+
         // if(label){
         //     token = linha.substr(rotulo_fim, linha.size() - offset);
         // }else{
@@ -281,8 +304,7 @@ void secondPass(string file_name){
         //     }
         // }
 
-    }
-    inFile.close();
+    // inFile.close();
 }
 int main()
 {
@@ -313,10 +335,6 @@ int main()
     for(auto [X, Y, Z]: instr_table){
         cout << "X: " << X << " Y: " << Y << " Z: " << Z << endl;
     }
-
-    // for(auto [A, B]: symbols_table){
-    //     cout << "A: " << A << " B: " << B << endl;
-    // }
-
+    secondPass("codigo_no_tab.asm");
     return 0;
 }
