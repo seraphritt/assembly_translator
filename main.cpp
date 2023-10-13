@@ -12,7 +12,8 @@ vector<string> instr_and_operandos;
 typedef vector<tuple<string, int>> table_type;
 typedef vector<tuple<string, int, string>> instr_table_type;
 table_type symbols_table;
-vector<string> dire_table = {"SPACE", "CONST", "SECAO DATA", "SECAO TEXT"}; // diretivas
+vector<string> dire_table = {"SPACE", "CONST", "SECAO DATA", "SECAO TEXT", "SECAO", "DATA", "TEXT"}; // diretivas
+vector<string> arquivo_obj; 
 // instru��o, num maximo de argumentos, OP code
 vector<string> conteudo; // vetor que guarda o que ser� escrito no arquivo objeto
 instr_table_type instr_table = {make_tuple("ADD", 2, "01"), make_tuple("SUB", 2, "02"), make_tuple("MUL", 2, "03"), make_tuple("DIV", 2, "04"), make_tuple("JMP", 2, "05"), make_tuple("JMPN", 2, "06"), make_tuple("JMPP", 2, "07"), make_tuple("JMPZ", 2, "08"), make_tuple("COPY", 3, "09"), make_tuple("LOAD", 2, "10"), make_tuple("STORE", 2, "11"), make_tuple("INPUT", 2, "12"), make_tuple("OUTPUT", 2, "13"), make_tuple("STOP", 1, "14")};
@@ -34,19 +35,27 @@ vector<string> splitOperands(string operands){
 }
 
 bool findInIntrTable(string instr, int posit){
+    int tam = 0;
+    int qtd = 0;
     if(instr != "\0"){
         istringstream a(instr); // tipo para usar o getline() e separar em espa�os
         string s;
-        cout << "instr" << instr << endl;
-        while (getline( a, s, ' ') ) {
-            if((s != ""))
+        cout << "instr: " << instr << endl;
+         while (getline( a, s, ' ') ) {
+            if((s != "" && s != "SECAO" && s != "DATA" && s != "TEXT")){
+                qtd += 1;
+                cout << s << endl;
                 instr_and_operandos.push_back(s);
+                tam = instr_and_operandos.size();
+            }
         }
 
-        for(auto [X, Y, Z]: instr_table){
-            if(X == instr_and_operandos[0]){
-                contador_posicao = contador_posicao + Y;
-                return true;
+        if(instr_and_operandos.size() != 0){
+            for(auto [X, Y, Z]: instr_table){
+                if(X == instr_and_operandos[tam - qtd]){
+                    contador_posicao = contador_posicao + Y;
+                    return true;
+                }
             }
         }
     }
@@ -67,6 +76,7 @@ bool findInDireTable(string dire){
             }
         }
     }
+
     for(auto X: dire_table){
         if(dire1 != ""){
             if(X == dire1){
@@ -156,9 +166,11 @@ void to_token(string linha){
     }else{
         token = linha.substr(index_comeco, linha.size() - offset);
     }
-    if(!findInIntrTable(token, contador_posicao)){
-        if(!findInDireTable(token)){
-            cout << "ERRO SINTATICO: OPERACAO NAO RECONHECIDA" << endl;
+    if(token.size() != 0){ // para evitar que leia uma string ""
+        if(!findInIntrTable(token, contador_posicao)){
+            if(!findInDireTable(token)){
+                cout << "ERRO SINTATICO: OPERACAO NAO RECONHECIDA" << endl;
+            }
         }
     }
 
@@ -216,30 +228,38 @@ void secondPass(string file_name){
 
     // imprimindo instruções e operações e tabela de símbolos
     // na segunda passagem olhamos apenas para as operações e os operandos, apenas para ajudar a debugar
-    
+
     for(auto X : instr_and_operandos){
         cout << "INSTR AND OPERANDOS: " << X << endl;
     }
 
-    // for(auto [X, Y]: symbols_table){
-    //     cout << "TABELA DE SIMBOLOS: " << "X: " << X << " Y: " << Y << endl;
-    // }
+    for(auto [X, Y]: symbols_table){
+        cout << "TABELA DE SIMBOLOS: " << "X: " << X << " Y: " << Y << endl;
+    }
 
+    bool achou_instr;
+    bool achou_dire;
     bool is_operand = false; // primeiro vem a operação e depois o operando
-    for(auto W : instr_and_operandos){ // se for uma operação, olha o operando. se o operando for um símbolo, procura na tabela de símbolos
+    for(int i = 0; i < instr_and_operandos.size(); i++){ // se for uma operação, olha o operando. se o operando for um símbolo, procura na tabela de símbolos
+        achou_instr = false;
+        achou_dire = false;
         if(is_operand){
-            vector<std::string> split_operands = splitOperands(W);
-            
+            vector<std::string> split_operands = splitOperands(instr_and_operandos[i]);
+
             for(const string & operand : split_operands){
                 cout << "OPERANDO: " << operand << endl;
 
                 // TODO: todos os operandos que estao em "instr_and_operandos" sao simbolos?
+                // Sim, todo operando é um símbolo já que não existe imediato
+                // Apenas na const e space o operando deve ser um número, mas a const e space são diretivas
                 // se nao sao, eles sempre irao ser numeros?
-                // e necessario criar um if para nao gerar erro quando o operando nao for simbolo 
+                // e necessario criar um if para nao gerar erro quando o operando nao for simbolo
                 bool found_operand = false;
+                int symbol_posit;
                 for(auto symbol : symbols_table){ // Procura operando na TS
                     if(get<0>(symbol) == operand){
                         found_operand = true;
+                        symbol_posit = get<1>(symbol);
                         break;
                     }
                 }
@@ -248,16 +268,33 @@ void secondPass(string file_name){
                     cout << "ERRO: SIMBOLO INDEFINIDO" << endl;
                     break;
                 }
+
+                cout << "AQUI: " << instr_and_operandos[symbol_posit] << endl;
+
+                
+
             }
-            
+
             is_operand = false;
             continue;
         }
         for(auto [X, Y, Z] : instr_table){
-            if(W == X){ // procura instrucao na tabela de instrucoes
+            if(instr_and_operandos[i] == X){ // procura instrucao na tabela de instrucoes
+                // se não achar, procura na tabela de diretivas
                 is_operand = true; // se existir na tabela de intrucoes a proxima string sera um operando
-
+                achou_instr = true;
                 break;
+            }
+        }
+        if((!achou_instr) & (!is_operand)){ // procurar na tabela de diretivas
+            for(auto A: dire_table){
+                if(instr_and_operandos[i] == A){
+                    achou_dire = true;
+                    cout << "DIRETIVA: " << A << endl;
+                }
+            }
+            if(!achou_dire){
+                cout << "ERRO: OPERACAO NAO IDENTIFICADA" << endl;
             }
         }
     }
