@@ -68,6 +68,14 @@ bool findInIntrTable(string instr, int posit){
                 instr_and_operandos.push_back(make_tuple(s[0], "", ""));
             }else if(s.size() == 2){
                 instr_and_operandos.push_back(make_tuple(s[0], s[1], ""));
+                if(s[0] != "CONST"){
+                    instr_and_operandos.push_back(make_tuple("BUBBLE", "", ""));
+                }if(s[0] == "SPACE" && s[1] != ""){
+                    for(int i = 0; i < stoi(s[1]) - 2; i++){
+                        instr_and_operandos.push_back(make_tuple("BUBBLE", "", ""));
+                    }
+                }
+                 // as instruções bubble são para fazer com que o contador posição esteja certo
             }
 
         }else{
@@ -77,15 +85,17 @@ bool findInIntrTable(string instr, int posit){
                 if((ss != "" && ss != "SECAO" && ss != "DATA" && ss != "TEXT")){
                     s.push_back(ss);
                     cout << ss << endl;
-                    tam = instr_and_operandos.size();
                 }
             }qtd += 3;
             instr_and_operandos.push_back(make_tuple("COPY", s[0], s[1]));
+            instr_and_operandos.push_back(make_tuple("BUBBLE", "", "")); // as instruções bubble são para fazer com que o contador posição esteja certo
+            instr_and_operandos.push_back(make_tuple("BUBBLE", "", ""));
+            s[0] = "COPY";
         }
 
-        if(instr_and_operandos.size() != 0){
+        if(instr_and_operandos.size() != 0 && s.size() != 0){
             for(auto [X, Y, Z]: instr_table){
-                if(X == get<0>(instr_and_operandos[instr_and_operandos.size() - 1])){
+                if(X == s[0]){
                     contador_posicao = contador_posicao + Y;
                     return true;
                 }
@@ -258,9 +268,28 @@ void readFile(string file_name){
 void secondPass(string file_name){
     contador_linha = 1; // zerando o contador_linha
     contador_posicao = 0; // zerando o contador_posicao
+    bool achou_1 = false;
+    bool achou_2 = false;
     for(int i = 0; i < instr_and_operandos.size(); i++){ // se for uma operação, olha o operando. se o operando for um símbolo, procura na tabela de símbolos
-        cout << "operacoes " << get<0>(instr_and_operandos[i]) << endl;
+        cout << "operacoes: " << get<0>(instr_and_operandos[i]) << endl;
+        cout << "operandos_1: " << get<1>(instr_and_operandos[i]) << endl;
+        cout << "operandos_2: " << get<2>(instr_and_operandos[i]) << endl;
+        for(auto [X, Y]: symbols_table){
+            if(X == get<1>(instr_and_operandos[i])){ // para cada operando que é símbolo, se achar na tabela de diretivas
+                achou_1 = true;
+                cout << "operando_1_rotulo :" << get<0>(instr_and_operandos[Y]) << endl;
+                cout << "SIMBOLO: " << X << " " << "POSICAO: " << Y << endl;
+            }
+            if(X == get<2>(instr_and_operandos[i])){
+                achou_2 = true;
+                cout << "operando_2_rotulo :" << get<0>(instr_and_operandos[Y]) << endl;
+                cout << "SIMBOLO: " << X << " " << "POSICAO: " << Y << endl;
+            }
 
+        }
+        if((!achou_1 && get<1>(instr_and_operandos[i]) != "") || (!achou_2 && get<2>(instr_and_operandos[i]) != "")){
+            cout << "ERRO, SIMBOLO INDEFINIDO" << endl;
+        }
     // TODO: todos os operandos que estao em "instr_and_operandos" sao simbolos?
     // Sim, todo operando é um símbolo já que não existe imediato
     // Apenas na const e space o operando deve ser um número, mas a const e space são diretivas
@@ -321,6 +350,10 @@ int main()
     readFile("codigo_no_tab.asm");
     for(auto [X, Y, Z]: instr_table){
         cout << "X: " << X << " Y: " << Y << " Z: " << Z << endl;
+    }
+    // imprimindo tabela de simbolos
+    for(auto [X, Y]: symbols_table){
+        cout << "SIMBOLO: " << X << " " << "POSICAO: " << Y << endl;
     }
     secondPass("codigo_no_tab.asm");
     return 0;
