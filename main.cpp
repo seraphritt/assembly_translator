@@ -336,7 +336,7 @@ int main()
         cout << "ERRO AO LER ARQUIVO" << endl;
         return 1; // retorna um indicando o erro
     }
-
+    // limpa o arquivo, tirando todos os tabs e substituindo por espaços
     char c;
     while (in.get(c)) {
         if (c == '\t')
@@ -352,6 +352,7 @@ int main()
     else{
         return 1;
     }
+    // TODO: implementar aqui uma funçao que verifica se a seção de texto está primeiro e a de dados depois. se não estiver, modificar o arq de entrada para que text venha sempre antes de dados
     readFile("codigo_no_tab.asm");
     for(auto [X, Y, Z]: instr_table){
         cout << "X: " << X << " Y: " << Y << " Z: " << Z << endl;
@@ -361,7 +362,7 @@ int main()
         cout << "SIMBOLO: " << X << " " << "POSICAO: " << Y << endl;
     }
     secondPass("codigo_no_tab.asm");
-    // interpret_instr(); // tem que verificar se a seção de texto está primeiro e a de dados depois. se não estiver, modificar o arq de entrada para que text venha sempre antes de dados
+    // interpret_instr();
     writeFile();
     return 0;
 }
