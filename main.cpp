@@ -9,6 +9,7 @@
 //using C++17
 using namespace std;
 vector<tuple<string, string, string>> instr_and_operandos;
+vector<string> obj_content; // conteúdo a ser escrito no arquivo objeto
 typedef vector<tuple<string, int>> table_type;
 typedef vector<tuple<string, int, string>> instr_table_type;
 table_type symbols_table;
@@ -151,19 +152,16 @@ bool findInSymbolsTable(string label, int posit){
 
 void writeFile(){
     int numero;
-    string nome;
-    ofstream outFile; //
-    outFile.open("sa�da.txt", ios::out); // abre o arquivo para escrita
+    obj_content = {"Places", "Faces"};
+    ofstream outFile;
+    outFile.open("codigo.obj", ios::out); // abre o arquivo para escrita
     if (! outFile)
     {
-        cout << "Arquivo saida.txt nao pode ser aberto" << endl;
+        cout << "Arquivo codigo.obj nao pode ser aberto" << endl;
         abort();
     }
-    cout << "Entre com o numero e nome do funcion�rio\n" << "Fim de arquivo (Ctrl-Z) termina a entrada de dados\n\n? ";
-    while(cin >> numero >> nome)
-    {
-        outFile << numero << " " << nome << "\n";
-        cout << "?";
+    for(auto X: obj_content){ // escrevendo cada posição do vetor no arquivo
+        outFile << X;
     }
     outFile.close(); // se o programador omitir a chamada ao m�todo close
 }
@@ -287,7 +285,7 @@ void secondPass(string file_name){
             }
 
         }
-        if((!achou_1 && get<1>(instr_and_operandos[i]) != "") || (!achou_2 && get<2>(instr_and_operandos[i]) != "")){
+        if((!achou_1 && get<1>(instr_and_operandos[i]) != "" && get<0>(instr_and_operandos[i]) != "SPACE" && get<0>(instr_and_operandos[i]) != "CONST") || (!achou_2 && get<2>(instr_and_operandos[i]) != "" && get<0>(instr_and_operandos[i]) != "SPACE" && get<0>(instr_and_operandos[i]) != "CONST")){
             cout << "ERRO, SIMBOLO INDEFINIDO" << endl;
         }
     // TODO: todos os operandos que estao em "instr_and_operandos" sao simbolos?
@@ -322,6 +320,13 @@ void secondPass(string file_name){
     //     Contador_linha = contador_linha + 1
     }
 }
+
+void interpret_instr(){
+    // usar o vetor de instr_and_operandos
+
+
+}
+
 int main()
 {
     ifstream in("codigo.asm");
@@ -356,5 +361,7 @@ int main()
         cout << "SIMBOLO: " << X << " " << "POSICAO: " << Y << endl;
     }
     secondPass("codigo_no_tab.asm");
+    // interpret_instr(); // tem que verificar se a seção de texto está primeiro e a de dados depois. se não estiver, modificar o arq de entrada para que text venha sempre antes de dados
+    writeFile();
     return 0;
 }
