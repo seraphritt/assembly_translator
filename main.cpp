@@ -15,33 +15,80 @@ typedef vector<tuple<string, int, string>> instr_table_type;
 table_type symbols_table;
 vector<string> dire_table = {"SPACE", "CONST", "SECAO DATA", "SECAO TEXT", "SECAO", "DATA", "TEXT"}; // diretivas
 vector<string> arquivo_obj;
-// instru��o, num maximo de argumentos, OP code
-vector<string> conteudo; // vetor que guarda o que ser� escrito no arquivo objeto
+// instrucao, num maximo de argumentos, OP code
+vector<string> conteudo; // vetor que guarda o que sera escrito no arquivo objeto
 instr_table_type instr_table = {make_tuple("ADD", 2, "01"), make_tuple("SUB", 2, "02"), make_tuple("MUL", 2, "03"), make_tuple("DIV", 2, "04"), make_tuple("JMP", 2, "05"), make_tuple("JMPN", 2, "06"), make_tuple("JMPP", 2, "07"), make_tuple("JMPZ", 2, "08"), make_tuple("COPY", 3, "09"), make_tuple("LOAD", 2, "10"), make_tuple("STORE", 2, "11"), make_tuple("INPUT", 2, "12"), make_tuple("OUTPUT", 2, "13"), make_tuple("STOP", 1, "14")};
 int contador_linha = 0;
 int contador_posicao = 0;
 
 
-vector<string> splitOperands_comma(string operands){
-    vector<string> result;
+tuple<string, int> getLineGeneratedCode(string operation, int address, int symbol_1_posit, int symbol_2_posit){
+    string line_generated_code = "";
+    bool has_operation = false;
 
-    istringstream ss(operands);
-    string element;
-
-    while (getline(ss, element, ',')) {
-        result.push_back(element);
+    for(auto [X, Y, Z]: instr_table){
+        if(X == operation){
+            if(Y == 1){
+                line_generated_code = string("end. ") + to_string(address) + ": " + string(Z);
+            }else if(Y == 2){
+                line_generated_code = string("end. ") + to_string(address) + ": " + string(Z) + " " + to_string(symbol_1_posit) + "\n";
+            }else if(Y == 3){
+                line_generated_code = string("end. ") + to_string(address) + ": " + string(Z) + " " + to_string(symbol_1_posit) + " " + to_string(symbol_2_posit) + "\n";
+            }
+            address += Y; //posicao que ocupa
+            has_operation = true;
+        }
     }
 
-    return result;
+    if(!has_operation){
+        cout << "ERRO, OPERAÇÃO INVÁLIDA " << address << endl;
+    }
+
+    return make_tuple(line_generated_code, address);
+
+    // if(operation == "ADD") { // ACC <- ACC + mem(OP) // <endereco>: <opcode> <valor_simbolo> <valor_simbolo>
+    //     line_generated_code = string("end. ") + string("<endereco>:") + string(" 01 ") + to_string(symbol_1_posit) + "\n";
+    // }else if(operation == "SUB"){ // ACC <- ACC - mem(OP)
+    //     line_generated_code = string("end. ") + string("<endereco>:") + string(" 02 ") + to_string(symbol_1_posit) + "\n";
+    // }else if(operation == "MUL"){ // ACC <- ACC × mem(OP)
+    //     line_generated_code = string("end. ") + string("<endereco>:") + string(" 03 ") + to_string(symbol_1_posit) + "\n";
+    // }else if(operation == "DIV"){ // ACC <- ACC ÷ mem(OP)
+    //     line_generated_code = string("end. ") + string("<endereco>:") + string(" 04 ") + to_string(symbol_1_posit) + "\n";
+    // }else if(operation == "JMP"){ // PC <- OP
+    //     line_generated_code = string("end. ") + string("<endereco>:") + string(" 05 ") + to_string(symbol_1_posit) + "\n";
+    // }else if(operation == "JMPN"){ // Se ACC<0 então PC <- OP
+    //     // ta incorreto
+    //     line_generated_code = string("end. ") + string("<endereco>:") + string(" 06 ") + to_string(symbol_1_posit) + "\n";
+    // }else if(operation == "JMPP"){ // Se ACC>0 então PC <- OP
+    //     // ta incorreto
+    //     line_generated_code = string("end. ") + string("<endereco>:") + string(" 07 ") + to_string(symbol_1_posit) + "\n";
+    // }else if(operation == "JMPZ"){ // Se ACC=0 então PC <- OP
+    //     // ta incorreto
+    //     line_generated_code = string("end. ") + string("<endereco>:") + string(" 08 ") + to_string(symbol_1_posit) + "\n";
+    // }else if(operation == "COPY"){ // mem(OP2) <- mem(OP1)
+    //     line_generated_code = string("end. ") + string("<endereco>:") + string(" 09 ") + to_string(symbol_1_posit) + " " + to_string(symbol_2_posit) + "\n";
+    // }else if(operation == "LOAD"){ // ACC <- mem(OP)
+    //     line_generated_code = string("end. ") + string("<endereco>:") + string(" 10 ") + to_string(symbol_1_posit) + "\n";
+    // }else if(operation == "STORE"){ // mem(OP) <- ACC
+    //     line_generated_code = string("end. ") + string("<endereco>:") + string(" 11 ") + to_string(symbol_1_posit) + "\n";
+    // }else if(operation == "INPUT"){ // mem(OP) <- entrada
+    //     line_generated_code = string("end. ") + string("<endereco>:") + string(" 12 ") + to_string(symbol_1_posit) + "\n";
+    // }else if(operation == "OUTPUT"){ // saída <- mem(OP)
+    //     line_generated_code = string("end. ") + string("<endereco>:") + string(" 13 ") + to_string(symbol_1_posit) + "\n";
+    // }else if(operation == "STOP"){ // Suspende a execução
+    //     line_generated_code = string("end. ") + string("<endereco>:") + string(" 14");
+    // } else {
+    //     outputFile << "ERRO, INSTRUÇÃO INVÁLIDA" << endl;
+    //     // return 1; // Termina o programa em caso de instrução inválida
+    // }
 }
 
-vector<string> splitOperands_space(string operands){
+vector<string> splitString(string input, char delimiter){
     vector<string> result;
-
-    istringstream ss(operands);
+    istringstream ss(input);
     string element;
 
-    while (getline(ss, element, ' ')) {
+    while (getline(ss, element, delimiter)) {
         result.push_back(element);
     }
 
@@ -80,8 +127,9 @@ bool findInIntrTable(string instr, int posit){
             }
 
         }else{
-              // se for copy, separa por vírgula
-            ss = splitOperands_space(instr)[1];
+            // se for copy, separa por vírgula
+            ss = splitString(instr, ' ')[1]; // ss = splitOperands_space(instr)[1];
+            
             while (getline( a, ss, ',') ) {
                 if((ss != "" && ss != "SECAO" && ss != "DATA" && ss != "TEXT")){
                     s.push_back(ss);
@@ -163,7 +211,7 @@ void writeFile(){
     for(auto X: obj_content){ // escrevendo cada posição do vetor no arquivo
         outFile << X;
     }
-    outFile.close(); // se o programador omitir a chamada ao m�todo close
+    outFile.close(); // se o programador omitir a chamada ao metodo close
 }
 void to_token(string linha){
     string token;
@@ -172,14 +220,14 @@ void to_token(string linha){
     int rotulo_fim  = 0;
     bool label = false;
     bool entrou = false;
-    for(int i = 0; i < linha.size(); i++){ // se tiver label, acha e coloca na tabela de s�mbolos
+    for(int i = 0; i < linha.size(); i++){ // se tiver label, acha e coloca na tabela de simbolos
         if((linha[i] != ' ') & (linha[i] != '\t') & (!entrou)){
             index_comeco = i;
             entrou = true;
             continue;
         }
-        if(linha[i] == ':'){ // se achar 2 pontos pega tudo que vem antes dos dois pontos e isso � o r�tulo/label
-            label = true; // se tiver essa flag usa-se o rotulo_fim, ou seja, a ultima posi�ao do r�tulo
+        if(linha[i] == ':'){ // se achar 2 pontos pega tudo que vem antes dos dois pontos e isso e o rotulo/label
+            label = true; // se tiver essa flag usa-se o rotulo_fim, ou seja, a ultima posicao do rotulo
             token = linha.substr(index_comeco, i - index_comeco);
             int j = i + 1;
             while(j<linha.size()){
@@ -191,10 +239,10 @@ void to_token(string linha){
             }
             if(findInSymbolsTable(token, contador_posicao)){
                cout << "ERRO SEMANTICO: SIMBOLO REDEFINIDO" << endl;
-               } // se achou na tabela de s�mobolos tem erro
+               } // se achou na tabela de simobolos tem erro
 
         }
-        if(linha[i] == ';'){ // anota a posicao onde est� o comentario, para que o que vier depois seja ignorado
+        if(linha[i] == ';'){ // anota a posicao onde esta o comentario, para que o que vier depois seja ignorado
             comment = i;
         }
     }
@@ -220,17 +268,17 @@ void readFile(string file_name){
     vector<string> rotulo;
     vector<string> operacao;
     vector<string> operandos;
-    // comentarios ser�o ignorados
+    // comentarios serao ignorados
     string token;
-    ifstream inFile; // inFile � o arquivo de leitura dos dados
+    ifstream inFile; // inFile e o arquivo de leitura dos dados
     inFile.open(file_name, ios::in); // abre o arquivo para leitura
     if (!inFile)
     {
         cout << "Arquivo codigo.asm nao pode ser aberto" << endl;
         abort();
     }
-    while(inFile){ // tem que ler linha por linha e n�o palavra por palavra
-        // criar fun��o que separa que l� uma linha e separa os espa�os e os operandos
+    while(inFile){ // tem que ler linha por linha e nao palavra por palavra
+        // criar funcao que separa que le uma linha e separa os espacos e os operandos
         string line;
         getline(inFile, line);
         to_token(line);
@@ -241,12 +289,12 @@ void readFile(string file_name){
         if(token[token.size() - 1] == ':'){
             if(findInSymbolsTable(token, contador_posicao)){
                 cout << "Erro semantico: rotulo redefinido na linha " << contador_linha;
-                // retorna erro dizendo que na linha tal achou: redefini��o de r�tulo (sem�ntico)
+                // retorna erro dizendo que na linha tal achou: redefinicao de rotulo (semantico)
             }
         }
-        if(!findInIntrTable(token, contador_posicao)){ // se n�o achar a instru��o na tabela de instru��es, procurar na tabela de diretivas
+        if(!findInIntrTable(token, contador_posicao)){ // se nao achar a instrucao na tabela de instrucoes, procurar na tabela de diretivas
             if(!findInDireTable(token, contador_linha)){
-                cout << "Erro sint�tico: opera��o n�o identificada " << endl;
+                cout << "Erro sintatico: operacao nao identificada " << endl;
             }
             else{
                 if(token == "SPACE"){
@@ -258,8 +306,8 @@ void readFile(string file_name){
     } */
 
         // procurar rotulo na tabela de rotulos
-            // se achar o rotulo, devolva erro, s�mbolo redefinido (sem�ntico)
-        // se n�o, adicionar o rotulo na tabela de r�tulos e o contador posi��o (contador de mem�ria)
+        // se achar o rotulo, devolva erro, simbolo redefinido (semantico)
+        // se nao, adicionar o rotulo na tabela de rotulos e o contador posicao (contador de memoria)
     }
     inFile.close();
 }
@@ -268,57 +316,52 @@ void secondPass(string file_name){
     contador_posicao = 0; // zerando o contador_posicao
     bool achou_1 = false;
     bool achou_2 = false;
-    for(int i = 0; i < instr_and_operandos.size(); i++){ // se for uma operação, olha o operando. se o operando for um símbolo, procura na tabela de símbolos
-        cout << "operacoes: " << get<0>(instr_and_operandos[i]) << endl;
+
+    int address = 0;
+    ofstream outputFile("codigo_gerado.txt", std::ios::trunc);
+
+    for(int i = 0; i < instr_and_operandos.size(); i++){ // se for uma operação, olha o operando. se o operando for um símbolo, procura na tabela de símbolos        
+        cout << endl << "operacoes: " << get<0>(instr_and_operandos[i]) << endl;
         cout << "operandos_1: " << get<1>(instr_and_operandos[i]) << endl;
         cout << "operandos_2: " << get<2>(instr_and_operandos[i]) << endl;
+
+        string operation = get<0>(instr_and_operandos[i]);
+        int symbol_1_posit = 15; // verificar se e possivel inicializar com 15 (nao existe operacao com esse opcode numerico)
+        int symbol_2_posit = 15;
+
         for(auto [X, Y]: symbols_table){
-            if(X == get<1>(instr_and_operandos[i])){ // para cada operando que é símbolo, se achar na tabela de diretivas
+            if(X == get<1>(instr_and_operandos[i])){ // para cada operando que e símbolo, se achar na tabela de diretivas
                 achou_1 = true;
+                symbol_1_posit = Y;
                 cout << "operando_1_rotulo :" << get<0>(instr_and_operandos[Y]) << endl;
                 cout << "SIMBOLO: " << X << " " << "POSICAO: " << Y << endl;
             }
             if(X == get<2>(instr_and_operandos[i])){
                 achou_2 = true;
+                symbol_2_posit = Y;
                 cout << "operando_2_rotulo :" << get<0>(instr_and_operandos[Y]) << endl;
                 cout << "SIMBOLO: " << X << " " << "POSICAO: " << Y << endl;
             }
-
         }
+
         if((!achou_1 && get<1>(instr_and_operandos[i]) != "" && get<0>(instr_and_operandos[i]) != "SPACE" && get<0>(instr_and_operandos[i]) != "CONST") || (!achou_2 && get<2>(instr_and_operandos[i]) != "" && get<0>(instr_and_operandos[i]) != "SPACE" && get<0>(instr_and_operandos[i]) != "CONST")){
             cout << "ERRO, SIMBOLO INDEFINIDO" << endl;
         }
-    // TODO: todos os operandos que estao em "instr_and_operandos" sao simbolos?
-    // Sim, todo operando é um símbolo já que não existe imediato
-    // Apenas na const e space o operando deve ser um número, mas a const e space são diretivas
-    // se nao sao, eles sempre irao ser numeros?
-    // e necessario criar um if para nao gerar erro quando o operando nao for simbolo
 
+        if (!outputFile.is_open()) { // verifica see possivel abrir o arquivo onde salvamos o codigo gerado
+            cout << "Erro ao abrir o arquivo codigo_gerado.txt" << endl;
+            abort();
+        }
 
-    // PSEUDOCODIGO
-    // Contador_posição = 0
-    // Contador_linha = 1
-    // Enquanto arquivo fonte não chegou ao fim, faça:
-    //     Obtém uma linha do fonte
-    //     Separa os elementos da linha: rótulo,operação,operandos,comentários
-    //     Ignora o rótulo e os comentários
-    //     Para cada operando que é símbolo
-    //     Procura operando na TS
-    //         Se não achou: Erro, símbolo indefinido
-    //     Procura operação na tabela de instruções
-    //     Se achou:
-    //         contador_posição = contador_posição + tamanho da instrução
-    //         Se número e tipo dos operandos está correto então
-    //             gera código objeto conforme formato da instrução
-    //         Senão: Erro, operando inválido
-    //     Senão:
-    //         Procura operação na tabela de diretivas
-    //         Se achou:
-    //             Chama subrotina que executa a diretiva
-    //             Contador_posição = valor retornado pela subrotina
-    //         Senão: Erro, operação não identificada
-    //     Contador_linha = contador_linha + 1
+        tuple<string, int> result_generated_code_func  = getLineGeneratedCode(operation, address, symbol_1_posit, symbol_2_posit);
+
+        string line_generated_code = get<0>(result_generated_code_func);
+        address = get<1>(result_generated_code_func);
+
+        outputFile << line_generated_code;
     }
+
+    outputFile.close(); // Fecha o arquivo codigo_gerado
 }
 
 void interpret_instr(){
@@ -330,7 +373,7 @@ void interpret_instr(){
 int main()
 {
     ifstream in("codigo.asm");
-    ofstream out("codigo_no_tab.asm"); // codigo sem tab, transformando todos os tabs em espa�os
+    ofstream out("codigo_no_tab.asm"); // codigo sem tab, transformando todos os tabs em espacos
 
     if (!in || !out){
         cout << "ERRO AO LER ARQUIVO" << endl;
