@@ -23,14 +23,14 @@ int contador_linha = 0;
 int contador_posicao = 0;
 
 
-tuple<string, int> getLineGeneratedCode(string operation, int address, int symbol_1_posit, int symbol_2_posit){
+tuple<string, int> getLineGeneratedCode(tuple<string, string, string> operation, int address, int symbol_1_posit, int symbol_2_posit){
     string line_generated_code = "";
     bool has_operation = false;
 
     for(auto [X, Y, Z]: instr_table){
-        if(X == operation){
+        if(X == get<0>(operation)){
             if(Y == 1){
-                line_generated_code = string("end. ") + to_string(address) + ": " + string(Z);
+                line_generated_code = string("end. ") + to_string(address) + ": " + string(Z) + "\n";
             }else if(Y == 2){
                 line_generated_code = string("end. ") + to_string(address) + ": " + string(Z) + " " + to_string(symbol_1_posit) + "\n";
             }else if(Y == 3){
@@ -42,7 +42,20 @@ tuple<string, int> getLineGeneratedCode(string operation, int address, int symbo
     }
 
     if(!has_operation){
-        cout << "ERRO, OPERAÇÃO INVÁLIDA " << address << endl;
+        if(get<0>(operation) == "SPACE"){
+            if(get<1>(operation) != ""){
+                for(int i = 0; i < stoi(get<1>(operation)); i++){
+                    line_generated_code = string("end. ") + to_string(address) + ": " + "00" + "\n";
+                    address++;
+                }
+            }else{
+                line_generated_code = string("end. ") + to_string(address) + ": " + "00" + "\n";
+                address++;
+            }
+        }else if(get<0>(operation) == "CONST"){
+            line_generated_code = string("end. ") + to_string(address) + ": " + get<1>(operation) + "\n";
+            address++;
+        }
     }
 
     return make_tuple(line_generated_code, address);
@@ -130,7 +143,7 @@ bool findInIntrTable(string instr, int posit){
         }else{
             // se for copy, separa por vírgula
             ss = splitString(instr, ' ')[1]; // ss = splitOperands_space(instr)[1];
-            
+
             while (getline( a, ss, ',') ) {
                 if((ss != "" && ss != "SECAO" && ss != "DATA" && ss != "TEXT")){
                     s.push_back(ss);
@@ -321,12 +334,12 @@ void secondPass(string file_name){
     int address = 0;
     ofstream outputFile("codigo_gerado.txt", std::ios::trunc);
 
-    for(int i = 0; i < instr_and_operandos.size(); i++){ // se for uma operação, olha o operando. se o operando for um símbolo, procura na tabela de símbolos        
+    for(int i = 0; i < instr_and_operandos.size(); i++){ // se for uma operação, olha o operando. se o operando for um símbolo, procura na tabela de símbolos
         cout << endl << "operacoes: " << get<0>(instr_and_operandos[i]) << endl;
         cout << "operandos_1: " << get<1>(instr_and_operandos[i]) << endl;
         cout << "operandos_2: " << get<2>(instr_and_operandos[i]) << endl;
 
-        string operation = get<0>(instr_and_operandos[i]);
+        tuple<string, string, string> operation = instr_and_operandos[i];
         int symbol_1_posit = 15; // verificar se e possivel inicializar com 15 (nao existe operacao com esse opcode numerico)
         int symbol_2_posit = 15;
 
@@ -365,15 +378,72 @@ void secondPass(string file_name){
     outputFile.close(); // Fecha o arquivo codigo_gerado
 }
 
-void interpret_instr(){
-    // usar o vetor de instr_and_operandos
+void organizeFile(string file_name){
+    ifstream inFile; // inFile   o arquivo de leitura dos dados
+    ofstream outFile(file_name);
+    bool entra = false;
+    int secao_data_index_line = -1;
+    int secao_text_index_line = -1;
+    int conta_linhas = 0;
+    inFile.open("codigo.asm", ios::in); // abre o arquivo para leitura
+    if (!inFile)
+    {
+        cout << "Arquivo codigo.asm nao pode ser aberto" << endl;
+        abort();
+    }
+    while(inFile){
+        string line;
+        getline(inFile, line);
+        if(line == "SECAO TEXT"){
+            secao_text_index_line = conta_linhas;
+        }else if(line == "SECAO DATA"){
+            secao_data_index_line = conta_linhas;
+        }
+        conta_linhas++;
+        cout << "OrganizeFile: " << line << endl;
+    }
+    inFile.close();
+    inFile.open("codigo.asm", ios::in);
+    if((secao_text_index_line > secao_data_index_line) && (secao_text_index_line != -1)){ // isso significa que secao data vem antes de text
+        while(inFile){
+            string line;
+            getline(inFile, line);
+            if(line == "SECAO TEXT" || entra){
+                if(line == "" || line == "\n"){
+                    continue;
+                }
+                entra = true;
+                outFile << line;
+                outFile << "\n";
+            }else if(line == "SECAO DATA"){
+                continue;
+            }
+        }
+        inFile.close();
+        inFile.open("codigo.asm", ios::in);
+        while(inFile){
+            string line;
+            getline(inFile, line);
+            if(line == "SECAO DATA" || entra){
+                entra = true;
+                if(line == "" || line == "\n"){
+                    continue;
+                }
+                outFile << line;
+                outFile << "\n";
+            }if(line == "SECAO TEXT"){
+                break;
+            }
+        }
+    }
+    inFile.close();
 
 }
 
 int main()
 {
     ifstream in("codigo.asm");
-    ofstream out("codigo_no_tab.asm"); // codigo sem tab, transformando todos os tabs em espacos
+    ofstream out("codigo_temp.asm"); // codigo sem tab, transformando todos os tabs em espacos
 
     if (!in || !out){
         cout << "ERRO AO LER ARQUIVO" << endl;
@@ -395,8 +465,8 @@ int main()
     else{
         return 1;
     }
-    // TODO: implementar aqui uma funçao que verifica se a seção de texto está primeiro e a de dados depois. se não estiver, modificar o arq de entrada para que text venha sempre antes de dados
-    readFile("codigo_no_tab.asm");
+    organizeFile("codigo_temp.asm");// TODO: implementar aqui uma funçao que verifica se a seção de texto está primeiro e a de dados depois. se não estiver, modificar o arq de entrada para que text venha sempre antes de dados
+    readFile("codigo_temp.asm");
     for(auto [X, Y, Z]: instr_table){
         cout << "X: " << X << " Y: " << Y << " Z: " << Z << endl;
     }
@@ -404,8 +474,7 @@ int main()
     for(auto [X, Y]: symbols_table){
         cout << "SIMBOLO: " << X << " " << "POSICAO: " << Y << endl;
     }
-    secondPass("codigo_no_tab.asm");
-    // interpret_instr();
+    secondPass("codigo_temp.asm");
     writeFile();
     return 0;
 }
