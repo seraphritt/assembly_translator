@@ -15,7 +15,6 @@ Utilizamos C++ 17.
 3. Para evitar mensagem de erro de versão no compilador, adicione a flag e "-std=c++17" indo em Settings > Compiler > Compiler Flags, conforme a imagem a seguir:
 
 ![Compiler Settings](https://drive.google.com/uc?export=view&id=1OBPT2n-3AhccdfLatkHrK876BUOv0PAv)
-
 # TERMINAL WINDOWS
 1. Verificar se o g++ está instalado, com o comando ``g++ --version``, atentando-se à versão do compilador.
 2. Para compilar, o comando é: ``g++ -std=c++17 main.cpp -o main``.
