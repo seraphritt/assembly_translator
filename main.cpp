@@ -14,6 +14,7 @@ typedef vector<tuple<string, int>> table_type;
 typedef vector<tuple<string, int, string>> instr_table_type;
 table_type symbols_table;
 vector<string> dire_table = {"SPACE", "CONST", "SECAO DATA", "SECAO TEXT", "SECAO", "DATA", "TEXT"}; // diretivas
+
 vector<string> arquivo_obj;
 // instrucao, num maximo de argumentos, OP code
 vector<string> conteudo; // vetor que guarda o que sera escrito no arquivo objeto
@@ -366,7 +367,6 @@ void secondPass(string file_name){
 
 void interpret_instr(){
     // usar o vetor de instr_and_operandos
-
 
 }
 
