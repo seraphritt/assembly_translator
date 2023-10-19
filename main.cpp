@@ -74,42 +74,6 @@ tuple<string, int> getLineGeneratedCode(tuple<string, string, string> operation,
     }
 
     return make_tuple(line_generated_code, address);
-
-    // if(operation == "ADD") { // ACC <- ACC + mem(OP) // <endereco>: <opcode> <valor_simbolo> <valor_simbolo>
-    //     line_generated_code = string("end. ") + string("<endereco>:") + string(" 01 ") + to_string(symbol_1_posit) + "\n";
-    // }else if(operation == "SUB"){ // ACC <- ACC - mem(OP)
-    //     line_generated_code = string("end. ") + string("<endereco>:") + string(" 02 ") + to_string(symbol_1_posit) + "\n";
-    // }else if(operation == "MUL"){ // ACC <- ACC × mem(OP)
-    //     line_generated_code = string("end. ") + string("<endereco>:") + string(" 03 ") + to_string(symbol_1_posit) + "\n";
-    // }else if(operation == "DIV"){ // ACC <- ACC ÷ mem(OP)
-    //     line_generated_code = string("end. ") + string("<endereco>:") + string(" 04 ") + to_string(symbol_1_posit) + "\n";
-    // }else if(operation == "JMP"){ // PC <- OP
-    //     line_generated_code = string("end. ") + string("<endereco>:") + string(" 05 ") + to_string(symbol_1_posit) + "\n";
-    // }else if(operation == "JMPN"){ // Se ACC<0 então PC <- OP
-    //     // ta incorreto
-    //     line_generated_code = string("end. ") + string("<endereco>:") + string(" 06 ") + to_string(symbol_1_posit) + "\n";
-    // }else if(operation == "JMPP"){ // Se ACC>0 então PC <- OP
-    //     // ta incorreto
-    //     line_generated_code = string("end. ") + string("<endereco>:") + string(" 07 ") + to_string(symbol_1_posit) + "\n";
-    // }else if(operation == "JMPZ"){ // Se ACC=0 então PC <- OP
-    //     // ta incorreto
-    //     line_generated_code = string("end. ") + string("<endereco>:") + string(" 08 ") + to_string(symbol_1_posit) + "\n";
-    // }else if(operation == "COPY"){ // mem(OP2) <- mem(OP1)
-    //     line_generated_code = string("end. ") + string("<endereco>:") + string(" 09 ") + to_string(symbol_1_posit) + " " + to_string(symbol_2_posit) + "\n";
-    // }else if(operation == "LOAD"){ // ACC <- mem(OP)
-    //     line_generated_code = string("end. ") + string("<endereco>:") + string(" 10 ") + to_string(symbol_1_posit) + "\n";
-    // }else if(operation == "STORE"){ // mem(OP) <- ACC
-    //     line_generated_code = string("end. ") + string("<endereco>:") + string(" 11 ") + to_string(symbol_1_posit) + "\n";
-    // }else if(operation == "INPUT"){ // mem(OP) <- entrada
-    //     line_generated_code = string("end. ") + string("<endereco>:") + string(" 12 ") + to_string(symbol_1_posit) + "\n";
-    // }else if(operation == "OUTPUT"){ // saída <- mem(OP)
-    //     line_generated_code = string("end. ") + string("<endereco>:") + string(" 13 ") + to_string(symbol_1_posit) + "\n";
-    // }else if(operation == "STOP"){ // Suspende a execução
-    //     line_generated_code = string("end. ") + string("<endereco>:") + string(" 14");
-    // } else {
-    //     outputFile << "ERRO, INSTRUÇÃO INVÁLIDA" << endl;
-    //     // return 1; // Termina o programa em caso de instrução inválida
-    // }
 }
 
 vector<string> splitString(string input, char delimiter){
