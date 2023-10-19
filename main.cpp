@@ -39,7 +39,7 @@ tuple<string, int> getLineGeneratedCode(tuple<string, string, string> operation,
                 if(get<1>(operation).find("+") != string::npos){ // se houver + no operando da instrução
                     acres1 = stoi(get<1>(operation).substr(get<1>(operation).find("+") + 1, get<1>(operation).size() - get<1>(operation).find("+")));
                 }
-                line_generated_code += string(Z) + " " + to_string(symbol_1_posit) + " ";
+                line_generated_code += string(Z) + " " + to_string(symbol_1_posit + acres1) + " ";
             }else if(Y == 3){
                 acres1 = 0;
                 acres2 = 0;
@@ -323,14 +323,24 @@ void secondPass(string file_name){
         int symbol_2_posit = 15;
 
         for(auto [X, Y]: symbols_table){
-            if(X == get<1>(instr_and_operandos[i])){ // para cada operando que e símbolo, se achar na tabela de diretivas
+            string op = get<1>(instr_and_operandos[i]);
+            if(get<1>(instr_and_operandos[i]).find("+") != string::npos){
+               op = op.substr(0, get<1>(instr_and_operandos[i]).size() - (get<1>(instr_and_operandos[i]).size() - get<1>(instr_and_operandos[i]).find("+")));
+               cout << "op: " << op << endl;
+               }
+            if(X == op){ // para cada operando que e símbolo, se achar na tabela de diretivas
                 // TODO: se achar + na string, fazer uma substring que recorte do começo até antes do símbolo de +
                 achou_1 = true;
                 symbol_1_posit = Y;
                 cout << "operando_1_rotulo :" << get<0>(instr_and_operandos[Y]) << endl;
                 cout << "SIMBOLO: " << X << " " << "POSICAO: " << Y << endl;
             }
-            if(X == get<2>(instr_and_operandos[i])){
+            op = get<2>(instr_and_operandos[i]);
+            if(get<2>(instr_and_operandos[i]).find("+") != string::npos){
+               op = op.substr(0, get<2>(instr_and_operandos[i]).size() - (get<2>(instr_and_operandos[i]).size() - get<2>(instr_and_operandos[i]).find("+")));
+               cout << "op2: " << op << endl;
+               }
+            if(X == op){
                 // TODO: se achar + na string, fazer uma substring que recorte do começo até antes do símbolo de +
                 achou_2 = true;
                 symbol_2_posit = Y;
