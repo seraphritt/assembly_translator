@@ -33,5 +33,10 @@
 
 # Paths and files
 codigo_no_tab.asm
-main
+codigo_temp.asm
 codigo_gerado.txt
+
+#main
+main
+main.exe
+main.o
