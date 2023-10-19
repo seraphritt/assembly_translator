@@ -23,18 +23,33 @@ int contador_linha = 0;
 int contador_posicao = 0;
 
 
+
 tuple<string, int> getLineGeneratedCode(tuple<string, string, string> operation, int address, int symbol_1_posit, int symbol_2_posit){
     string line_generated_code = "";
+    int acres1;
+    int acres2;
     bool has_operation = false;
-
+    // TODO: identificar operadores como ROTULO+2 (acessar a posição 2 do vetor ROTULO)
     for(auto [X, Y, Z]: instr_table){
         if(X == get<0>(operation)){
             if(Y == 1){
-                line_generated_code = string("end. ") + to_string(address) + ": " + string(Z) + "\n";
+                line_generated_code += string(Z) + " ";
             }else if(Y == 2){
-                line_generated_code = string("end. ") + to_string(address) + ": " + string(Z) + " " + to_string(symbol_1_posit) + "\n";
+                acres1 = 0;
+                if(get<1>(operation).find("+") != string::npos){ // se houver + no operando da instrução
+                    acres1 = stoi(get<1>(operation).substr(get<1>(operation).find("+") + 1, get<1>(operation).size() - get<1>(operation).find("+")));
+                }
+                line_generated_code += string(Z) + " " + to_string(symbol_1_posit) + " ";
             }else if(Y == 3){
-                line_generated_code = string("end. ") + to_string(address) + ": " + string(Z) + " " + to_string(symbol_1_posit) + " " + to_string(symbol_2_posit) + "\n";
+                acres1 = 0;
+                acres2 = 0;
+                if(get<1>(operation).find("+") != string::npos){ // se houver + no operando da instrução
+                    acres1 = stoi(get<1>(operation).substr(get<1>(operation).find("+") + 1, get<1>(operation).size() - get<1>(operation).find("+")));
+                }
+                if(get<2>(operation).find("+") != string::npos){ // se houver + no operando da instrução
+                    acres2 = stoi(get<2>(operation).substr(get<2>(operation).find("+") + 1, get<2>(operation).size() - get<2>(operation).find("+")));
+                }
+                line_generated_code += string(Z) + " " + to_string(symbol_1_posit + acres1) + " " + to_string(symbol_2_posit + acres2) + " ";
             }
             address += Y; //posicao que ocupa
             has_operation = true;
@@ -45,15 +60,15 @@ tuple<string, int> getLineGeneratedCode(tuple<string, string, string> operation,
         if(get<0>(operation) == "SPACE"){
             if(get<1>(operation) != ""){
                 for(int i = 0; i < stoi(get<1>(operation)); i++){
-                    line_generated_code = string("end. ") + to_string(address) + ": " + "00" + "\n";
+                    line_generated_code += string("00") + string(" ");
                     address++;
                 }
             }else{
-                line_generated_code = string("end. ") + to_string(address) + ": " + "00" + "\n";
+                line_generated_code += string("00") + string(" ");
                 address++;
             }
         }else if(get<0>(operation) == "CONST"){
-            line_generated_code = string("end. ") + to_string(address) + ": " + get<1>(operation) + "\n";
+            line_generated_code = get<1>(operation) + " ";
             address++;
         }
     }
@@ -345,12 +360,14 @@ void secondPass(string file_name){
 
         for(auto [X, Y]: symbols_table){
             if(X == get<1>(instr_and_operandos[i])){ // para cada operando que e símbolo, se achar na tabela de diretivas
+                // TODO: se achar + na string, fazer uma substring que recorte do começo até antes do símbolo de +
                 achou_1 = true;
                 symbol_1_posit = Y;
                 cout << "operando_1_rotulo :" << get<0>(instr_and_operandos[Y]) << endl;
                 cout << "SIMBOLO: " << X << " " << "POSICAO: " << Y << endl;
             }
             if(X == get<2>(instr_and_operandos[i])){
+                // TODO: se achar + na string, fazer uma substring que recorte do começo até antes do símbolo de +
                 achou_2 = true;
                 symbol_2_posit = Y;
                 cout << "operando_2_rotulo :" << get<0>(instr_and_operandos[Y]) << endl;
@@ -424,6 +441,9 @@ void organizeFile(string file_name){
         while(inFile){
             string line;
             getline(inFile, line);
+            if(line == "SECAO TEXT"){
+                break;
+            }
             if(line == "SECAO DATA" || entra){
                 entra = true;
                 if(line == "" || line == "\n"){
@@ -431,8 +451,6 @@ void organizeFile(string file_name){
                 }
                 outFile << line;
                 outFile << "\n";
-            }if(line == "SECAO TEXT"){
-                break;
             }
         }
     }
