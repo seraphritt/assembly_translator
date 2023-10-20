@@ -35,6 +35,7 @@
 codigo_no_tab.asm
 codigo_temp.asm
 codigo_gerado.txt
+codigo_gerado.obj
 
 #main
 main
