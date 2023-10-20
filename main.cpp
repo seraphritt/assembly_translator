@@ -4,6 +4,8 @@
 #include <cstdlib>
 #include <iomanip>
 #include <vector>
+#include <map>
+#include <regex>
 
 //version: g++ (x86_64-posix-seh-rev0, Built by MinGW-W64 project) 8.1.0
 //using C++17
@@ -22,15 +24,19 @@ instr_table_type instr_table = {make_tuple("ADD", 2, "01"), make_tuple("SUB", 2,
 int contador_linha = 0;
 int contador_posicao = 0;
 
-
-string removeCarriageReturn(const string &input) {
+string removeSpecialChar(const string &input) {
     string result;
     for (char c : input) {
-        if (c != '\r') {
+        if (c != '\r' && c != '\n' && c != '\t') {
             result += c;
         }
     }
     return result;
+}
+
+string trim(string s) {
+    regex e("^\\s+|\\s+$");   // remove leading and trailing spaces
+    return regex_replace(s, e, "");
 }
 
 tuple<string, int> getLineGeneratedCode(tuple<string, string, string> operation, int address, int symbol_1_posit, int symbol_2_posit){
@@ -46,17 +52,17 @@ tuple<string, int> getLineGeneratedCode(tuple<string, string, string> operation,
             }else if(Y == 2){
                 acres1 = 0;
                 if(get<1>(operation).find("+") != string::npos){ // se houver + no operando da instrução
-                    acres1 = stoi(removeCarriageReturn(get<1>(operation).substr(get<1>(operation).find("+") + 1, get<1>(operation).size() - get<1>(operation).find("+"))));
+                    acres1 = stoi(removeSpecialChar(get<1>(operation).substr(get<1>(operation).find("+") + 1, get<1>(operation).size() - get<1>(operation).find("+"))));
                 }
                 line_generated_code += string(Z) + " " + to_string(symbol_1_posit + acres1) + " ";
             }else if(Y == 3){
                 acres1 = 0;
                 acres2 = 0;
                 if(get<1>(operation).find("+") != string::npos){ // se houver + no operando da instrução
-                    acres1 = stoi(removeCarriageReturn(get<1>(operation).substr(get<1>(operation).find("+") + 1, get<1>(operation).size() - get<1>(operation).find("+"))));
+                    acres1 = stoi(removeSpecialChar(get<1>(operation).substr(get<1>(operation).find("+") + 1, get<1>(operation).size() - get<1>(operation).find("+"))));
                 }
                 if(get<2>(operation).find("+") != string::npos){ // se houver + no operando da instrução
-                    acres2 = stoi(removeCarriageReturn(get<2>(operation).substr(get<2>(operation).find("+") + 1, get<2>(operation).size() - get<2>(operation).find("+"))));
+                    acres2 = stoi(removeSpecialChar(get<2>(operation).substr(get<2>(operation).find("+") + 1, get<2>(operation).size() - get<2>(operation).find("+"))));
                 }
                 line_generated_code += string(Z) + " " + to_string(symbol_1_posit + acres1) + " " + to_string(symbol_2_posit + acres2) + " ";
             }
@@ -230,7 +236,7 @@ void to_token(string linha){
         }
         if(linha[i] == ':'){ // se achar 2 pontos pega tudo que vem antes dos dois pontos e isso e o rotulo/label
             label = true; // se tiver essa flag usa-se o rotulo_fim, ou seja, a ultima posicao do rotulo
-            token = removeCarriageReturn(linha.substr(index_comeco, i - index_comeco));
+            token = removeSpecialChar(linha.substr(index_comeco, i - index_comeco));
             int j = i + 1;
             while(j<linha.size()){
                 if((linha[j] != ' ') & (linha[j] != '\t')){
@@ -253,9 +259,9 @@ void to_token(string linha){
         offset = linha.size() - comment;
     }
     if(label){
-        token = removeCarriageReturn(linha.substr(rotulo_fim, linha.size() - offset));
+        token = removeSpecialChar(linha.substr(rotulo_fim, linha.size() - offset));
     }else{
-        token = removeCarriageReturn(linha.substr(index_comeco, linha.size() - offset));
+        token = removeSpecialChar(linha.substr(index_comeco, linha.size() - offset));
     }
     if(token.size() != 0){ // para evitar que leia uma string ""
         if(!findInIntrTable(token, contador_posicao)){
@@ -320,7 +326,7 @@ void secondPass(string file_name){
     bool achou_2 = false;
 
     int address = 0;
-    ofstream outputFile("codigo_gerado.obj", std::ios::trunc);
+    ofstream outputFile("codigo_gerado.obj", ios::trunc);
 
     for(int i = 0; i < instr_and_operandos.size(); i++){ // se for uma operação, olha o operando. se o operando for um símbolo, procura na tabela de símbolos
         cout << endl << "operacoes: " << get<0>(instr_and_operandos[i]) << endl;
@@ -334,7 +340,7 @@ void secondPass(string file_name){
         for(auto [X, Y]: symbols_table){
             string op = get<1>(instr_and_operandos[i]);
             if(get<1>(instr_and_operandos[i]).find("+") != string::npos){
-               op = removeCarriageReturn(op.substr(0, get<1>(instr_and_operandos[i]).size() - (get<1>(instr_and_operandos[i]).size() - get<1>(instr_and_operandos[i]).find("+"))));
+               op = removeSpecialChar(op.substr(0, get<1>(instr_and_operandos[i]).size() - (get<1>(instr_and_operandos[i]).size() - get<1>(instr_and_operandos[i]).find("+"))));
             //    cout << "op: " << op << endl;
             }
 
@@ -353,7 +359,7 @@ void secondPass(string file_name){
 
             op = get<2>(instr_and_operandos[i]);
             if(get<2>(instr_and_operandos[i]).find("+") != string::npos){
-               op = removeCarriageReturn(op.substr(0, get<2>(instr_and_operandos[i]).size() - (get<2>(instr_and_operandos[i]).size() - get<2>(instr_and_operandos[i]).find("+"))));
+               op = removeSpecialChar(op.substr(0, get<2>(instr_and_operandos[i]).size() - (get<2>(instr_and_operandos[i]).size() - get<2>(instr_and_operandos[i]).find("+"))));
                cout << "op2: " << op << endl;
                }
             if(X == op){
@@ -453,6 +459,107 @@ bool organizeFile(string file_name, string file_name_temp){
     return false;
 }
 
+void zeroPass(string file_name){
+    ifstream inFile; // inFile e o arquivo de leitura dos dados
+    inFile.open(file_name, ios::in); // abre o arquivo para leitura
+    if (!inFile)
+    {
+        cout << "Arquivo" << file_name << "nao pode ser aberto" << endl;
+        abort();
+    }
+
+    map<string, vector<string>> instruction_macro;
+    bool is_macro = false;
+    string macro_key;
+
+    while(inFile){
+        string line;
+        getline(inFile, line);
+
+        if(line.find("ENDMACRO") != string::npos){
+            is_macro = false;
+            cout << "ENTROU ENDMACRO"<< endl;
+            continue;
+        }else if(line.find("MACRO") != string::npos){
+            is_macro = true;
+            macro_key = removeSpecialChar(line.substr(0, line.find(":")));
+            continue;
+        }
+
+        if(is_macro){
+            bool is_macro_macro = false;
+            for(auto entry : instruction_macro) {
+                if(removeSpecialChar(line) == entry.first){
+                    is_macro_macro = true;
+                    vector<string> instructions = entry.second;
+
+                    for(int i = 0; i < instructions.size(); ++i) {
+                        instruction_macro[macro_key].push_back(instructions[i]);
+                    }
+                        
+                }
+            }
+
+            if(!is_macro_macro){
+                instruction_macro[macro_key].push_back(removeSpecialChar(line));
+            }
+            
+        }
+    }
+    
+    for (auto entry : instruction_macro) {
+        cout << "\"" << entry.first << "\": [";
+        vector<string> instructions = entry.second;
+        for(int i = 0; i < instructions.size(); ++i) {
+            cout << "\"" << instructions[i] << "\"";
+            if (i < instructions.size() - 1) {
+                cout << ", ";
+            }
+        }
+        cout << "]" << endl;
+    }
+
+    inFile.close();
+    inFile.open(file_name, ios::in);
+
+    ofstream out(file_name + ".pre");
+    bool is_section = false;
+    is_macro = false;
+
+    while(inFile){
+        string line;
+        getline(inFile, line);
+
+        if(is_section){
+            for(auto entry : instruction_macro) {
+                cout << "line " << "*" << removeSpecialChar(line) << "*" << endl;
+                cout << "first "<< "*" << entry.first << "*" << endl << endl;
+                if(trim(line) == entry.first){
+                    cout << "HAAAAAAAAAAAAAAAAAAA"<< endl;
+                    is_macro = true;
+                    vector<string> instructions = entry.second;
+
+                    for(int i = 0; i < instructions.size(); ++i) {
+                        out << instructions[i] << endl;
+                    }
+                }
+            }
+            if(!is_macro){
+                out << line << endl;
+            } 
+        }
+
+        if(line.find("SECAO") != string::npos){
+            is_section = true;
+            out << line << endl;
+            cout << "ENTROU SECAO"<< endl;
+            continue;
+        }
+    }
+
+    out.close();
+}
+
 int main(int argc, char* argv[])
 {
     char* file_name = argv[1];
@@ -480,6 +587,10 @@ int main(int argc, char* argv[])
     else{
         return 1;
     }
+
+    zeroPass(file_name);
+
+
     if(organizeFile(file_name, "codigo_temp.asm")){
         readFile("codigo_temp.asm");
     } else {
