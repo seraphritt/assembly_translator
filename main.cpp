@@ -346,7 +346,7 @@ void secondPass(string file_name){
 
             cout << "OP: *" << op << "*" << endl;
             cout << "X: *" << X << "*" << endl;
-            
+
             if(X == op){ // para cada operando que e símbolo, se achar na tabela de diretivas
                 // TODO: se achar + na string, fazer uma substring que recorte do começo até antes do símbolo de +
                 achou_1 = true;
@@ -435,6 +435,7 @@ bool organizeFile(string file_name, string file_name_temp){
         }
         inFile.close();
         inFile.open(file_name, ios::in);
+        entra = false;
         while(inFile){
             string line;
             getline(inFile, line);
@@ -452,10 +453,12 @@ bool organizeFile(string file_name, string file_name_temp){
         }
 
         inFile.close();
+        outFile.close();
         return true;
     }
 
     inFile.close();
+    outFile.close();
     return false;
 }
 
@@ -496,17 +499,17 @@ void zeroPass(string file_name){
                     for(int i = 0; i < instructions.size(); ++i) {
                         instruction_macro[macro_key].push_back(instructions[i]);
                     }
-                        
+
                 }
             }
 
             if(!is_macro_macro){
                 instruction_macro[macro_key].push_back(removeSpecialChar(line));
             }
-            
+
         }
     }
-    
+
     for (auto entry : instruction_macro) {
         cout << "\"" << entry.first << "\": [";
         vector<string> instructions = entry.second;
@@ -522,14 +525,15 @@ void zeroPass(string file_name){
     inFile.close();
     inFile.open(file_name, ios::in);
 
-    ofstream out(file_name + ".pre");
+    ofstream out(removeSpecialChar(file_name.substr(0, file_name.size() - (file_name.size() - file_name.find("."))) + ".pre"));
     bool is_section = false;
     is_macro = false;
 
     while(inFile){
+        is_macro = false;
         string line;
         getline(inFile, line);
-
+        cout << line << endl;
         if(is_section){
             for(auto entry : instruction_macro) {
                 cout << "line " << "*" << removeSpecialChar(line) << "*" << endl;
@@ -544,9 +548,9 @@ void zeroPass(string file_name){
                     }
                 }
             }
-            if(!is_macro){
+            if(!is_macro && line.find("SECAO") == string::npos){
                 out << line << endl;
-            } 
+            }
         }
 
         if(line.find("SECAO") != string::npos){
@@ -562,7 +566,9 @@ void zeroPass(string file_name){
 
 int main(int argc, char* argv[])
 {
+    bool is_zeroPass;
     char* file_name = argv[1];
+    string file_name_str = argv[1];
 
     ifstream in(file_name);
     ofstream out("codigo_temp.asm"); // codigo sem tab, transformando todos os tabs em espacos
@@ -577,7 +583,7 @@ int main(int argc, char* argv[])
         if (c == '\t')
             out << ""; // 4 spaces
         else
-            out << c;
+            out << toupper(c);
     }
     out.close();
     in.close();
@@ -587,16 +593,30 @@ int main(int argc, char* argv[])
     else{
         return 1;
     }
-
-    zeroPass(file_name);
-
-
-    if(organizeFile(file_name, "codigo_temp.asm")){
-        readFile("codigo_temp.asm");
-    } else {
-        readFile(file_name);
+    if(file_name_str.find("mcr") != string::npos){
+        is_zeroPass = true;
+        zeroPass(file_name);
     }
-    
+
+    if(is_zeroPass){
+        file_name_str = removeSpecialChar(file_name_str.substr(0, file_name_str.size() - (file_name_str.size() - file_name_str.find("."))) + ".pre");
+        if(organizeFile(file_name_str, "codigo_temp.asm")){
+            readFile("codigo_temp.asm");
+            secondPass("codigo_temp.asm");
+        } else {
+            readFile(file_name_str);
+            secondPass(file_name_str);
+        }
+    }
+    else{
+        if(organizeFile(file_name, "codigo_temp.asm")){
+            readFile("codigo_temp.asm");
+            secondPass("codigo_temp.asm");
+        } else {
+            readFile(file_name);
+            secondPass(file_name);
+        }
+    }
     for(auto [X, Y, Z]: instr_table){
         cout << "X: " << X << " Y: " << Y << " Z: " << Z << endl;
     }
@@ -604,7 +624,7 @@ int main(int argc, char* argv[])
     for(auto [X, Y]: symbols_table){
         cout << "SIMBOLO: " << X << " " << "POSICAO: " << Y << endl;
     }
-    secondPass("codigo_temp.asm");
     writeFile();
+    remove("codigo_temp.asm");
     return 0;
 }
