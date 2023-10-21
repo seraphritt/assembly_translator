@@ -416,6 +416,10 @@ bool organizeFile(string file_name, string file_name_temp){
         cout << "OrganizeFile: " << line << endl;
     }
     inFile.close();
+    if(secao_text_index_line == -1){
+        cout << "ERRO: SECAO TEXT nao encontrada no arquivo." << endl;
+        abort();
+    }
     inFile.open(file_name, ios::in);
     if((secao_text_index_line > secao_data_index_line) && (secao_text_index_line != -1)){ // isso significa que secao data vem antes de text
         while(inFile){
