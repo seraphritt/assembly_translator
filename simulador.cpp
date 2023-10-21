@@ -16,56 +16,131 @@ void runObjCode(){
     vector<long long int>::iterator it;
     long long int op_a = 0;
     int i = 0;
-    while(i < code.size()){
-        cout << "i:" << i << endl;
-        if(refs.size() != 0){
-            it = min_element(refs.begin(), refs.end());
-            cout << "min: " << *it << endl;
-        }
+    while(i < code.size()){ // varredura para segfault
         if(code[i] == "01"){ // add
             refs.push_back(stoi(code[i+1]));
+            i+=2;
+            continue;
+        }
+        else if(code[i] == "02"){ // sub
+            refs.push_back(stoi(code[i+1]));
+            i+=2;
+            continue;
+        }
+        else if(code[i] == "03"){ // mul
+            refs.push_back(stoi(code[i+1]));
+            // cout << "<DEBUG> A: " << op_a << endl;
+            i += 2;
+            continue;
+        }
+        else if(code[i] == "04"){ // div
+            refs.push_back(stoi(code[i+1]));
+            // cout << "<DEBUG> A: " << op_a << endl;
+            i += 2;
+            continue;
+        }
+        else if(code[i] == "05"){ // jmp
+            i += 2;
+            continue;
+        }
+        else if(code[i] == "06"){ // jmpn
+            i += 2;
+            continue;
+        }
+        else if(code[i] == "07"){ // jmpp
+            i += 2;
+            continue;
+        }
+        else if(code[i] == "08"){ // jmpz
+            i += 2;
+            continue;
+        }
+        else if(code[i] == "09"){ // copy
+            refs.push_back(stoi(code[i+1]));
+            refs.push_back(stoi(code[i+2]));
+            i += 3;
+            continue;
+        }
+        else if(code[i] == "10"){ // load
+            refs.push_back(stoi(code[i+1]));
+            i += 2;
+            continue;
+        }
+        else if(code[i] == "11"){ // store
+            refs.push_back(stoi(code[i+1]));
+            i += 2;
+            continue;
+        }
+        else if(code[i] == "12"){ // input
+            refs.push_back(stoi(code[i+1]));
+            i += 2;
+            continue;
+        }
+        else if(code[i] == "13"){ // output
+            refs.push_back(stoi(code[i+1]));
+            i += 2;
+            continue;
+        }
+        else if(code[i] == "14"){ // stop
+            break;
+        }
+    }
+    it = min_element(refs.begin(), refs.end()); // posição da primeira label (menor valor referenciado)
+    i = 0;
+    // for(auto X: refs){
+       //  cout << "REF: " << X << endl;
+    // }
+    while(i < code.size()){
+        if(code[i] == "01"){ // add
             op_a = stoi(code[stoi(code[i+1])]);
             acc += op_a;
             // cout << "<DEBUG> A: " << op_a << endl;
             i += 2;
             cout << "PC <- " << i << " ";
             cout << "ACC: " << acc << endl;
+            getchar();
             continue;
         }
         else if(code[i] == "02"){ // sub
-            refs.push_back(stoi(code[i+1]));
             op_a = stoi(code[stoi(code[i+1])]);
             acc -= op_a;
             // cout << "<DEBUG> A: " << op_a << endl;
             i += 2;
             cout << "PC <- " << i << " ";
             cout << "ACC: " << acc << endl;
+            getchar();
             continue;
         }
         else if(code[i] == "03"){ // mul
-            refs.push_back(stoi(code[i+1]));
             op_a = stoi(code[stoi(code[i+1])]);
             acc *= op_a;
             // cout << "<DEBUG> A: " << op_a << endl;
             i += 2;
             cout << "PC <- " << i << " ";
             cout << "ACC: " << acc << endl;
+            getchar();
             continue;
         }
         else if(code[i] == "04"){ // div
-            refs.push_back(stoi(code[i+1]));
             op_a = stoi(code[stoi(code[i+1])]);
             acc = acc/op_a;
             // cout << "<DEBUG> A: " << op_a << endl;
             i += 2;
             cout << "PC <- " << i << " ";
             cout << "ACC: " << acc << endl;
+            getchar();
             continue;
         }
         else if(code[i] == "05"){ // jmp
             i = stoi(code[i+1]);
             cout << "PC <- " << i << " ";
             cout << "ACC: " << acc << endl;
+            if(i>=*it){
+                cout << *it << endl;
+                cout << "SEGMENTATION FAULT" << endl;
+                break;
+            }
+            getchar();
             continue;
         }
         else if(code[i] == "06"){ // jmpn
@@ -73,11 +148,23 @@ void runObjCode(){
                 i = stoi(code[i + 1]);
                 cout << "PC <- " << i << " ";
                 cout << "ACC: " << acc << endl;
+                if(i>=*it){
+                    cout << *it << endl;
+                    cout << "SEGMENTATION FAULT" << endl;
+                    break;
+                }
+                getchar();
                 continue;
             }
             i += 2;
             cout << "PC <- " << i << " ";
             cout << "ACC: " << acc << endl;
+            if(i>=*it){
+                cout << *it << endl;
+                cout << "SEGMENTATION FAULT" << endl;
+                break;
+            }
+            getchar();
             continue;
         }
         else if(code[i] == "07"){ // jmpp
@@ -85,11 +172,23 @@ void runObjCode(){
                 i = stoi(code[i + 1]);
                 cout << "PC <- " << i << " ";
                 cout << "ACC: " << acc << endl;
-                continue;
+                if(i>=*it){
+                    cout << *it << endl;
+                    cout << "SEGMENTATION FAULT" << endl;
+                    break;
                 }
+                getchar();
+                continue;
+            }
             i += 2;
             cout << "PC <- " << i << " ";
             cout << "ACC: " << acc << endl;
+            if(i>=*it){
+                cout << *it << endl;
+                cout << "SEGMENTATION FAULT" << endl;
+                break;
+            }
+            getchar();
             continue;
         }
         else if(code[i] == "08"){ // jmpz
@@ -97,19 +196,32 @@ void runObjCode(){
                 i = stoi(code[i + 1]);
                 cout << "PC <- " << i << " ";
                 cout << "ACC: " << acc << endl;
+                if(i>=*it){
+                    cout << *it << endl;
+                    cout << "SEGMENTATION FAULT" << endl;
+                    break;
+            }
+                getchar();
                 continue;
-                }
+            }
             i += 2;
             cout << "PC <- " << i << " ";
             cout << "ACC: " << acc << endl;
+            if(i>=*it){
+                cout << *it << endl;
+                cout << "SEGMENTATION FAULT" << endl;
+                break;
+            }
+            getchar();
             continue;
         }
         else if(code[i] == "09"){ // copy
             op_a = stoi(code[stoi(code[i+1])]); // operando A
-            code[stoi(code[i+2])] = op_a; // pega o contéudo do operando a e coloca no operando b
+            code[stoi(code[i+2])] = to_string(op_a); // pega o contéudo do operando a e coloca no operando b
             i += 3;
             cout << "PC <- " << i << " ";
             cout << "ACC: " << acc << endl;
+            getchar();
             continue;
         }
         else if(code[i] == "10"){ // load
@@ -117,29 +229,35 @@ void runObjCode(){
             i += 2;
             cout << "PC <- " << i << " ";
             cout << "ACC: " << acc << endl;
+            getchar();
             continue;
         }
         else if(code[i] == "11"){ // store
-            code[stoi(code[i+1])] = acc;
+            code[stoi(code[i+1])] = to_string(acc);
             i += 2;
             cout << "PC <- " << i << " ";
             cout << "ACC: " << acc << endl;
+            getchar();
             continue;
         }
         else if(code[i] == "12"){ // input
             long long int input = 0;
             cin >> input;
-            code[stoi(code[i+1])] = input;
+            code[stoi(code[i+1])] = to_string(input);
             i += 2;
             cout << "PC <- " << i << " ";
             cout << "ACC: " << acc << endl;
+            getchar();
+            getchar();
             continue;
         }
         else if(code[i] == "13"){ // output
             i += 2;
             cout << "PC <- " << i << " ";
-            cout << "ACC: " << acc;
-            cout << "SAIDA: " << code[stoi(code[i+1])];
+            cout << "ACC: " << acc << " ";
+            cout << "SAIDA: " << code[stoi(code[i-1])];
+            getchar();
+            continue;
         }
         else if(code[i] == "14"){ // stop
             break;
@@ -162,9 +280,11 @@ void readFile(string file_name){
         getline(inFile, each, ' ');
         code.push_back(each);
     }
-    for(auto X: code){
-        cout << "line: " << X << endl;
-    }
+    int i = 0;
+//    for(auto X: code){
+//        cout << "line: " << i << " " << X << endl;
+//        i++;
+//    }
 }
 
 int main(int argc, char* argv[])
