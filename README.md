@@ -35,7 +35,7 @@ Este projeto é uma implementação de um tradutor em C++ que utiliza o algoritm
 
 ### Configuração do Code::Blocks 20.03
 
-1. Instalar o codeblocks-20.03mingw-setup.exe [codeblocks-20.03mingw-setup.exe](https://www.codeblocks.org/downloads/binaries/#imagesoswindows48pnglogo-microsoft-windows), sem mudar nada no processo da instalação, apenas clicando em "Next".
+1. Instalar o [codeblocks-20.03mingw-setup.exe](https://www.codeblocks.org/downloads/binaries/#imagesoswindows48pnglogo-microsoft-windows), sem mudar nada no processo da instalação, apenas clicando em "Next".
 2. Ao abrir o codeblocks pela primeira vez, será detectado o compilador GNU GCC. Selecionar "OK".
 3. Para evitar mensagem de erro de versão no compilador, adicione a flag e "-std=c++17" indo em Settings > Compiler > Compiler Flags, conforme a imagem a seguir:
 
@@ -51,13 +51,13 @@ Este projeto é uma implementação de um tradutor em C++ que utiliza o algoritm
 
 ![alt text](https://github.com/seraphritt/Trab_1_SB/blob/main/assets/Compiler_settings_2.png?raw=true)
 
-### Compilação/execução do Montador via Terminal
+### Compilação/execução do **Montador** via Terminal
 
 1. Verificar se o g++ está instalado, com o comando ``g++ --version``, atentando-se à versão do compilador.
 2. Para compilar, o comando é: ``g++ -std=c++17 montador.cpp -o montador``.
 3. Para executar, digite: ``.\montador <path>\nome_do_arquivo.extensao``.
 
-### Compilação/execução do Simulador via Terminal
+### Compilação/execução do **Simulador** via Terminal
 
 1. Verificar se o g++ está instalado, com o comando ``g++ --version``, atentando-se à versão do compilador.
 2. Para compilar, o comando é: ``g++ -std=c++17 simulador.cpp -o simulador``.
