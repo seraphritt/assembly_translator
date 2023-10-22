@@ -1,5 +1,0 @@
-# PSEUDOCODIGO FIRST_PASS
-
-```
-
-```
