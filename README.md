@@ -24,6 +24,7 @@ Este projeto é uma implementação de um tradutor em C++ que utiliza o algoritm
 | OUTPUT           | 13              | 2                  | saída = mem(OP)     |
 | STOP             | 14              | 1                  | Suspende a execução |
 
+
 ## **Instruções para compilação/execução**
 
 ### Ambiente de Desenvolvimento
