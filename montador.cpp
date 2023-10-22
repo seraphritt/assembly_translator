@@ -6,6 +6,7 @@
 #include <vector>
 #include <map>
 #include <regex>
+#include <algorithm>
 
 //version: g++ (x86_64-posix-seh-rev0, Built by MinGW-W64 project) 8.1.0
 //using C++17
@@ -16,13 +17,21 @@ typedef vector<tuple<string, int>> table_type;
 typedef vector<tuple<string, int, string>> instr_table_type;
 table_type symbols_table;
 vector<string> dire_table = {"SPACE", "CONST", "SECAO DATA", "SECAO TEXT", "SECAO", "DATA", "TEXT"}; // diretivas
-
 vector<string> arquivo_obj;
 // instrucao, num maximo de argumentos, OP code
 vector<string> conteudo; // vetor que guarda o que sera escrito no arquivo objeto
 instr_table_type instr_table = {make_tuple("ADD", 2, "01"), make_tuple("SUB", 2, "02"), make_tuple("MUL", 2, "03"), make_tuple("DIV", 2, "04"), make_tuple("JMP", 2, "05"), make_tuple("JMPN", 2, "06"), make_tuple("JMPP", 2, "07"), make_tuple("JMPZ", 2, "08"), make_tuple("COPY", 3, "09"), make_tuple("LOAD", 2, "10"), make_tuple("STORE", 2, "11"), make_tuple("INPUT", 2, "12"), make_tuple("OUTPUT", 2, "13"), make_tuple("STOP", 1, "14")};
 int contador_linha = 0;
 int contador_posicao = 0;
+
+string str_toupper(string s)
+{
+    transform(s.begin(), s.end(), s.begin(),
+                   [](int c){
+                        if (isalnum(c)) return toupper(c); else return c; } // correct
+                  );
+    return s;
+}
 
 string removeSpecialChar(const string &input) {
     string result;
@@ -110,8 +119,9 @@ bool findInIntrTable(string instr, int posit){
         istringstream a(instr); // tipo para usar o getline() e separar em espa�os
         vector<string> s;
         string ss;
-        cout << "instr: " << instr << endl;
-        if(instr.find("COPY") == string::npos){ // se não for copy, separa os operandos por espaço (só tem 1 operando) ou 0 no caso do stop e space
+        cout << "instr: " << instr << '\n';
+        const string cp = "COPY";
+        if(instr.find(cp) == string::npos){ // se não for copy, separa os operandos por espaço (só tem 1 operando) ou 0 no caso do stop e space
             while (getline( a, ss, ' ') ) {
                 if((ss != "" && ss != "\n" && ss != "SECAO" && ss != "DATA" && ss != "TEXT")){
                     s.push_back(ss);
@@ -207,7 +217,6 @@ bool findInSymbolsTable(string label, int posit){
 }
 
 void writeFile(){
-    int numero;
     obj_content = {"Places", "Faces"};
     ofstream outFile;
     outFile.open("codigo.obj", ios::out); // abre o arquivo para escrita
@@ -223,12 +232,12 @@ void writeFile(){
 }
 void to_token(string linha){
     string token;
-    int comment = 0;
+    int comment = -1;
     int index_comeco = 0;
     int rotulo_fim  = 0;
     bool label = false;
     bool entrou = false;
-    for(int i = 0; i < linha.size(); i++){ // se tiver label, acha e coloca na tabela de simbolos
+    for(unsigned int i = 0; i < linha.size(); i++){ // se tiver label, acha e coloca na tabela de simbolos
         if((linha[i] != ' ') & (linha[i] != '\t') & (!entrou)){
             index_comeco = i;
             entrou = true;
@@ -237,7 +246,7 @@ void to_token(string linha){
         if(linha[i] == ':'){ // se achar 2 pontos pega tudo que vem antes dos dois pontos e isso e o rotulo/label
             label = true; // se tiver essa flag usa-se o rotulo_fim, ou seja, a ultima posicao do rotulo
             token = removeSpecialChar(linha.substr(index_comeco, i - index_comeco));
-            int j = i + 1;
+            unsigned int j = i + 1;
             while(j<linha.size()){
                 if((linha[j] != ' ') & (linha[j] != '\t')){
                     rotulo_fim = j;
@@ -255,7 +264,7 @@ void to_token(string linha){
         }
     }
     int offset = 0;
-    if(comment != 0){
+    if(comment != -1){
         offset = linha.size() - comment;
     }
     if(label){
@@ -289,6 +298,7 @@ void readFile(string file_name){
         // criar funcao que separa que le uma linha e separa os espacos e os operandos
         string line;
         getline(inFile, line);
+        line = str_toupper(line);
         to_token(line);
         contador_linha += 1;
         cout << "[contador posicao]" << contador_posicao << endl;
@@ -328,7 +338,7 @@ void secondPass(string file_name){
     int address = 0;
     ofstream outputFile("codigo_gerado.obj", ios::trunc);
 
-    for(int i = 0; i < instr_and_operandos.size(); i++){ // se for uma operação, olha o operando. se o operando for um símbolo, procura na tabela de símbolos
+    for(unsigned int i = 0; i < instr_and_operandos.size(); i++){ // se for uma operação, olha o operando. se o operando for um símbolo, procura na tabela de símbolos
         cout << endl << "operacoes: " << get<0>(instr_and_operandos[i]) << endl;
         cout << "operandos_1: " << get<1>(instr_and_operandos[i]) << endl;
         cout << "operandos_2: " << get<2>(instr_and_operandos[i]) << endl;
@@ -496,7 +506,7 @@ void zeroPass(string file_name){
                     is_macro_macro = true;
                     vector<string> instructions = entry.second;
 
-                    for(int i = 0; i < instructions.size(); ++i) {
+                    for(unsigned int i = 0; i < instructions.size(); ++i) {
                         instruction_macro[macro_key].push_back(instructions[i]);
                     }
 
@@ -509,26 +519,22 @@ void zeroPass(string file_name){
 
         }
     }
-
-    for (auto entry : instruction_macro) {
-        cout << "\"" << entry.first << "\": [";
-        vector<string> instructions = entry.second;
-        for(int i = 0; i < instructions.size(); ++i) {
-            cout << "\"" << instructions[i] << "\"";
-            if (i < instructions.size() - 1) {
-                cout << ", ";
-            }
-        }
-        cout << "]" << endl;
-    }
-
+    // for (auto entry : instruction_macro) {
+    //    cout << "\"" << entry.first << "\": [";
+    //    vector<string> instructions = entry.second;
+    //    for(unsigned int i = 0; i < instructions.size(); ++i) {
+    //        cout << "\"" << instructions[i] << "\"";
+    //        if (i < instructions.size() - 1) {
+    //            cout << ", ";
+    //        }
+    //    }
+    //    cout << "]" << endl;
+    //}
     inFile.close();
     inFile.open(file_name, ios::in);
-
     ofstream out(removeSpecialChar(file_name.substr(0, file_name.size() - (file_name.size() - file_name.find("."))) + ".pre"));
     bool is_section = false;
     is_macro = false;
-
     while(inFile){
         is_macro = false;
         string line;
@@ -543,13 +549,13 @@ void zeroPass(string file_name){
                     is_macro = true;
                     vector<string> instructions = entry.second;
 
-                    for(int i = 0; i < instructions.size(); ++i) {
-                        out << instructions[i] << endl;
+                    for(unsigned int i = 0; i < instructions.size(); ++i) {
+                        out << instructions[i] << '\n';
                     }
                 }
             }
             if(!is_macro && line.find("SECAO") == string::npos){
-                out << line << endl;
+                out << line << '\n';
             }
         }
 
@@ -583,7 +589,7 @@ int main(int argc, char* argv[])
         if (c == '\t')
             out << ""; // 4 spaces
         else
-            out << toupper(c);
+            out << c;
     }
     out.close();
     in.close();
