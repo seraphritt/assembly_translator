@@ -35,7 +35,7 @@ string removeSpecialChar(const string &input) {
 }
 
 string trim(string s) {
-    regex e("^\\s+|\\s+$");   // remove leading and trailing spaces
+    regex e("^\\s+|\\s+$"); // remover espaços iniciais e finais
     return regex_replace(s, e, "");
 }
 
@@ -96,7 +96,7 @@ vector<string> splitString(string input, char delimiter){
     istringstream ss(input);
     string element;
 
-    while (getline(ss, element, delimiter)) {
+    while (getline(ss, element, delimiter)){
         result.push_back(element);
     }
 
@@ -110,13 +110,13 @@ bool findInIntrTable(string instr, int posit){
         istringstream a(instr); // tipo para usar o getline() e separar em espa�os
         vector<string> s;
         string ss;
-        cout << "instr: " << instr << endl;
+        cout << endl << "instr: " << instr << endl;
         if(instr.find("COPY") == string::npos){ // se não for copy, separa os operandos por espaço (só tem 1 operando) ou 0 no caso do stop e space
             while (getline( a, ss, ' ') ) {
                 if((ss != "" && ss != "\n" && ss != "SECAO" && ss != "DATA" && ss != "TEXT")){
                     s.push_back(ss);
                     qtd += 1;
-                    cout << ss << endl;
+                    // cout << ss << endl;
                     tam = instr_and_operandos.size();
                 }
             }
@@ -130,20 +130,21 @@ bool findInIntrTable(string instr, int posit){
                     for(int i = 0; i < stoi(s[1]) - 2; i++){
                         instr_and_operandos.push_back(make_tuple("BUBBLE", "", ""));
                     }
-                }
-                 // as instruções bubble são para fazer com que o contador posição esteja certo
+                } // as instruções bubble são para fazer com que o contador posição esteja certo
             }
 
         }else{
             // se for copy, separa por vírgula
             ss = splitString(instr, ' ')[1]; // ss = splitOperands_space(instr)[1];
 
-            while (getline( a, ss, ',') ) {
+            while (getline( a, ss, ',') ){
                 if((ss != "" && ss != "SECAO" && ss != "DATA" && ss != "TEXT")){
                     s.push_back(ss);
                     cout << ss << endl;
                 }
-            }qtd += 3;
+            } 
+    
+            qtd += 3;
             instr_and_operandos.push_back(make_tuple("COPY", s[0], s[1]));
             instr_and_operandos.push_back(make_tuple("BUBBLE", "", "")); // as instruções bubble são para fazer com que o contador posição esteja certo
             instr_and_operandos.push_back(make_tuple("BUBBLE", "", ""));
@@ -159,8 +160,8 @@ bool findInIntrTable(string instr, int posit){
             }
         }
     }
-    // retorna falso e ir� procurar na tabela de diretivas
-    return false;
+    
+    return false; // retorna falso e ira procurar na tabela de diretivas
 }
 bool findInDireTable(string dire){
     string dire1 = "";
@@ -188,13 +189,13 @@ bool findInDireTable(string dire){
                 else if((X == "SPACE") & (dire2 != "")){
                     contador_posicao += stoi(dire2);
                 }
-                return true;    // se achar o token na tabela de diretivas, retorna true
+                return true; // se achar o token na tabela de diretivas, retorna true
             }
         }else if(X == dire){
-            return true;    // se achar o token na tabela de diretivas, retorna true
+            return true; // se achar o token na tabela de diretivas, retorna true
         }
     }
-    return false;   // retorna falso
+    return false; // retorna falso
 }
 bool findInSymbolsTable(string label, int posit){
     for(auto [X, Y]: symbols_table ){
@@ -276,15 +277,16 @@ void readFile(string file_name){
     vector<string> rotulo;
     vector<string> operacao;
     vector<string> operandos;
-    // comentarios serao ignorados
     string token;
     ifstream inFile; // inFile e o arquivo de leitura dos dados
     inFile.open(file_name, ios::in); // abre o arquivo para leitura
+
     if (!inFile)
     {
         cout << "Arquivo" << file_name << "nao pode ser aberto" << endl;
         abort();
     }
+
     while(inFile){ // tem que ler linha por linha e nao palavra por palavra
         // criar funcao que separa que le uma linha e separa os espacos e os operandos
         string line;
@@ -344,9 +346,6 @@ void secondPass(string file_name){
             //    cout << "op: " << op << endl;
             }
 
-            cout << "OP: *" << op << "*" << endl;
-            cout << "X: *" << X << "*" << endl;
-
             if(X == op){ // para cada operando que e símbolo, se achar na tabela de diretivas
                 // TODO: se achar + na string, fazer uma substring que recorte do começo até antes do símbolo de +
                 achou_1 = true;
@@ -354,8 +353,6 @@ void secondPass(string file_name){
                 cout << "operando_1_rotulo :" << get<0>(instr_and_operandos[Y]) << endl;
                 cout << "SIMBOLO: " << X << " " << "POSICAO: " << Y << endl;
             }
-
-            cout << " achou: " << achou_1 << endl;
 
             op = get<2>(instr_and_operandos[i]);
             if(get<2>(instr_and_operandos[i]).find("+") != string::npos){
@@ -399,11 +396,12 @@ bool organizeFile(string file_name, string file_name_temp){
     int secao_text_index_line = -1;
     int conta_linhas = 0;
     inFile.open(file_name, ios::in); // abre o arquivo para leitura
-    if (!inFile)
-    {
+
+    if (!inFile){
         cout << "Arquivo" << file_name << "nao pode ser aberto" << endl;
         abort();
     }
+    
     while(inFile){
         string line;
         getline(inFile, line);
@@ -481,7 +479,7 @@ void zeroPass(string file_name){
 
         if(line.find("ENDMACRO") != string::npos){
             is_macro = false;
-            cout << "ENTROU ENDMACRO"<< endl;
+            // cout << "ENTROU ENDMACRO"<< endl;
             continue;
         }else if(line.find("MACRO") != string::npos){
             is_macro = true;
@@ -499,10 +497,8 @@ void zeroPass(string file_name){
                     for(int i = 0; i < instructions.size(); ++i) {
                         instruction_macro[macro_key].push_back(instructions[i]);
                     }
-
                 }
             }
-
             if(!is_macro_macro){
                 instruction_macro[macro_key].push_back(removeSpecialChar(line));
             }
@@ -519,7 +515,7 @@ void zeroPass(string file_name){
                 cout << ", ";
             }
         }
-        cout << "]" << endl;
+        cout << "]" << endl << endl;
     }
 
     inFile.close();
@@ -533,13 +529,12 @@ void zeroPass(string file_name){
         is_macro = false;
         string line;
         getline(inFile, line);
-        cout << line << endl;
+
         if(is_section){
             for(auto entry : instruction_macro) {
-                cout << "line " << "*" << removeSpecialChar(line) << "*" << endl;
-                cout << "first "<< "*" << entry.first << "*" << endl << endl;
+                // cout << "line " << "*" << removeSpecialChar(line) << "*" << endl;
+                // cout << "first "<< "*" << entry.first << "*" << endl << endl;
                 if(trim(line) == entry.first){
-                    cout << "HAAAAAAAAAAAAAAAAAAA"<< endl;
                     is_macro = true;
                     vector<string> instructions = entry.second;
 
@@ -556,7 +551,7 @@ void zeroPass(string file_name){
         if(line.find("SECAO") != string::npos){
             is_section = true;
             out << line << endl;
-            cout << "ENTROU SECAO"<< endl;
+            // cout << "ENTROU SECAO"<< endl;
             continue;
         }
     }
@@ -617,13 +612,13 @@ int main(int argc, char* argv[])
             secondPass(file_name);
         }
     }
-    for(auto [X, Y, Z]: instr_table){
-        cout << "X: " << X << " Y: " << Y << " Z: " << Z << endl;
-    }
+    // for(auto [X, Y, Z]: instr_table){
+    //     cout << "X: " << X << " Y: " << Y << " Z: " << Z << endl;
+    // }
     // imprimindo tabela de simbolos
-    for(auto [X, Y]: symbols_table){
-        cout << "SIMBOLO: " << X << " " << "POSICAO: " << Y << endl;
-    }
+    // for(auto [X, Y]: symbols_table){
+    //     cout << "SIMBOLO: " << X << " " << "POSICAO: " << Y << endl;
+    // }
     writeFile();
     remove("codigo_temp.asm");
     return 0;
