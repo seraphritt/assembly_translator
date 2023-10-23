@@ -394,6 +394,7 @@ void zeroPass(string file_name){
         }
 
         if(line.find("SECAO") != string::npos){
+            out << removeSpecialChar(line) << '\n';
             is_section = true;
             continue;
         }
@@ -607,13 +608,30 @@ int main(int argc, char* argv[]){
     bool is_zeroPass;
     char* file_name = argv[1];
     string file_name_str = argv[1];
+    string temp_file_name = "codigo_temp.asm";
 
     ifstream in(file_name);
-    ofstream out("codigo_temp.asm"); // codigo sem tab, transformando todos os tabs em espacos
+    ofstream out(temp_file_name); // codigo sem tab, transformando todos os tabs em espacos
 
     if (!in || !out){
         cout << "ERRO AO LER ARQUIVO" << endl;
         return 1; // retorna um indicando o erro
+    }
+
+    string content = "";
+    while(getline(in, content)){
+        string result = "";
+
+        for(char x: content){
+            if(x == ';'){
+                break;
+            }
+            result += x;
+        }
+
+        if(result != ""){
+            out << removeSpecialChar(result) << '\n';
+        }
     }
     
     char c;
@@ -622,24 +640,25 @@ int main(int argc, char* argv[]){
             out << ""; // 4 spaces
         else
             out << c;
-    }
+    }    
 
     out.close();
     in.close();
     
     if(file_name_str.find("mcr") != string::npos){
         is_zeroPass = true;
-        zeroPass(file_name);
+        zeroPass(temp_file_name);
     }
 
+    string pre_file_name = "";
     if(is_zeroPass){
-        file_name_str = removeSpecialChar(file_name_str.substr(0, file_name_str.size() - (file_name_str.size() - file_name_str.find("."))) + ".pre");
-        if(organizeFile(file_name_str, "codigo_temp.asm")){
+        pre_file_name = removeSpecialChar(temp_file_name.substr(0, temp_file_name.size() - (temp_file_name.size() - temp_file_name.find("."))) + ".pre");
+        if(organizeFile(pre_file_name, "codigo_temp.asm")){
             firstPass("codigo_temp.asm");
             secondPass("codigo_temp.asm");
         }else{
-            firstPass(file_name_str);
-            secondPass(file_name_str);
+            firstPass(pre_file_name);
+            secondPass(pre_file_name);
         }
     }
     else{
