@@ -52,7 +52,7 @@ tuple<string, int> getLineGeneratedCode(tuple<string, string, string> operation,
     int acres1;
     int acres2;
     bool has_operation = false;
-    
+
     for(auto [X, Y, Z]: instr_table){
         if(X == get<0>(operation)){
             if(Y == 1){
@@ -123,7 +123,7 @@ bool findInIntrTable(string instr, int posit){
 
         if(instr.find(cp) == string::npos){ // se não for copy, separa os operandos por espaço (só tem 1 operando) ou 0 no caso do stop e space
             while (getline( a, ss, ' ') ){
-                if((ss != "" && ss != "\n" && ss != "SECAO" && ss != "DATA" && ss != "TEXT")){
+                if((ss != "" && ss != "\n" && ss != "SECAO" && ss != "DATA" && ss != "TEXT" )){
                     s.push_back(ss);
                     qtd += 1;
                     tam = instr_and_operandos.size();
@@ -149,7 +149,7 @@ bool findInIntrTable(string instr, int posit){
                 if((ss != "" && ss != "SECAO" && ss != "DATA" && ss != "TEXT")){
                     s.push_back(ss);
                 }
-            } 
+            }
             qtd += 3;
             instr_and_operandos.push_back(make_tuple("COPY", s[0], s[1]));
             instr_and_operandos.push_back(make_tuple("BUBBLE", "", "")); // as instruções bubble são para fazer com que o contador posição esteja certo
@@ -166,7 +166,7 @@ bool findInIntrTable(string instr, int posit){
             }
         }
     }
-    
+
     return false; // retorna falso e ira procurar na tabela de diretivas
 }
 
@@ -209,11 +209,11 @@ bool findInDireTable(string dire){
 }
 
 bool findInSymbolsTable(string label, int posit){
-    
+
     if (isdigit(label[0]) || label[0] == '_') { // Verifique se o primeiro caractere é um dígito
         cout << "ERRO LEXICO: ROTULO COMECA DE MANEIRA INCORRETA " <<  "(LINHA DO ARQUIVO ASM OU PRE: " << contador_linha + 1 << ")" << endl;
         is_error = true;
-    } 
+    }
 
     for (char c : label) { // Verifique se há caracteres especiais na string
         if (!isalpha(c) && !isdigit(c) && c != '_') {
@@ -352,7 +352,7 @@ void zeroPass(string file_name){
             }
         }
     }
-  
+
     // PRINT MACRO MAP
     // for (auto entry : instruction_macro) {
     //    cout << "\"" << entry.first << "\": [";
@@ -365,7 +365,7 @@ void zeroPass(string file_name){
     //    }
     //    cout << "]" << endl;
     // }
-    
+
     inFile.close();
     inFile.open(file_name, ios::in);
     ofstream out(removeSpecialChar(file_name.substr(0, file_name.size() - (file_name.size() - file_name.find("."))) + ".pre"));
@@ -441,10 +441,9 @@ void secondPass(string file_name){
     for(unsigned int i = 0; i < instr_and_operandos.size(); i++){ // se for uma operação, olha o operando. se o operando for um símbolo, procura na tabela de símbolos
         int symbol_1_posit = 15; // verificar se e possivel inicializar com 15 (nao existe operacao com esse opcode numerico)
         int symbol_2_posit = 15;
-        
+        bool comentario = false;
         bool achou_1 = false;
         bool achou_2 = false;
-
         // cout << endl << "operacoes: " << get<0>(instr_and_operandos[i]) << endl << "operandos_1: " << get<1>(instr_and_operandos[i]) << endl << "operandos_2: " << get<2>(instr_and_operandos[i]) << endl;
         if(get<0>(instr_and_operandos[i]) != "BUBBLE"){
             if(get<0>(instr_and_operandos[i]) != "COPY" && get<0>(instr_and_operandos[i]) != "STOP" && get<0>(instr_and_operandos[i]) != "SPACE"){
@@ -471,12 +470,16 @@ void secondPass(string file_name){
         }
 
         for(auto [X, Y]: symbols_table){
-
             string op = get<1>(instr_and_operandos[i]);
             if(get<1>(instr_and_operandos[i]).find("+") != string::npos){
                op = removeSpecialChar(op.substr(0, get<1>(instr_and_operandos[i]).size() - (get<1>(instr_and_operandos[i]).size() - get<1>(instr_and_operandos[i]).find("+"))));
             }
-
+            if(get<0>(instr_and_operandos[i]) == "COPY"){
+                if("COPY " + X == op){ // para cada operando que e símbolo, se achar na tabela de diretivas
+                    achou_1 = true;
+                    symbol_1_posit = Y;
+                }
+            }
             if(X == op){ // para cada operando que e símbolo, se achar na tabela de diretivas
                 achou_1 = true;
                 symbol_1_posit = Y;
@@ -493,10 +496,17 @@ void secondPass(string file_name){
             }
         }
 
-        if(get<0>(instr_and_operandos[i]) != "SPACE" && get<0>(instr_and_operandos[i]) != "CONST" && get<0>(instr_and_operandos[i]) != "BUBBLE"){
-            if((!achou_1 && get<1>(instr_and_operandos[i]) != "") || (!achou_2 && get<2>(instr_and_operandos[i]) != "")){
-                cout << "ERRO SEMANTICO: SIMBOLO INDEFINIDO " <<  "(LINHA DO ARQUIVO ASM OU PRE: " << contador_linha << ")" << endl;
-                is_error = true;
+        if(get<0>(instr_and_operandos[i]) != "SPACE" && get<0>(instr_and_operandos[i]) != "CONST" && get<0>(instr_and_operandos[i]) != "BUBBLE" && get<0>(instr_and_operandos[i]) != "STOP"){
+            if(get<0>(instr_and_operandos[i]) != "COPY"){
+                if(!achou_1){
+                    cout << "ERRO SEMANTICO: SIMBOLO INDEFINIDO " <<  "(LINHA DO ARQUIVO ASM OU PRE: " << contador_linha + 1 << ")" << endl;
+                    is_error = true;
+                }
+            }else if(get<0>(instr_and_operandos[i]) == "COPY"){
+                if(!achou_1 || !achou_2){
+                    cout << "ERRO SEMANTICO: SIMBOLO INDEFINIDO " <<  "(LINHA DO ARQUIVO ASM OU PRE: " << contador_linha + 1 << ")" << endl;
+                    is_error = true;
+                }
             }
         }
 
@@ -522,7 +532,7 @@ void secondPass(string file_name){
     }else{
         outputFile.close(); // Fecha o arquivo codigo_gerado
     }
-    
+
 }
 
 bool organizeFile(string file_name, string file_name_temp){
@@ -538,7 +548,7 @@ bool organizeFile(string file_name, string file_name_temp){
         cout << "Arquivo" << file_name << "nao pode ser aberto" << endl;
         abort();
     }
-    
+
     while(inFile){
         string line;
         getline(inFile, line);
@@ -615,7 +625,7 @@ int main(int argc, char* argv[]){
         cout << "ERRO AO LER ARQUIVO" << endl;
         return 1; // retorna um indicando o erro
     }
-    
+
     char c;
     while(in.get(c)){ // limpa o arquivo, tirando todos os tabs e substituindo por espaços
         if (c == '\t')
@@ -626,7 +636,7 @@ int main(int argc, char* argv[]){
 
     out.close();
     in.close();
-    
+
     if(file_name_str.find("mcr") != string::npos){
         is_zeroPass = true;
         zeroPass(file_name);
