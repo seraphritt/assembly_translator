@@ -39,7 +39,7 @@ Este projeto é uma implementação de um tradutor em C++ que utiliza o algoritm
 2. Ao abrir o codeblocks pela primeira vez, será detectado o compilador GNU GCC. Selecionar "OK".
 3. Para evitar mensagem de erro de versão no compilador, adicione a flag e "-std=c++17" indo em Settings > Compiler > Compiler Flags, conforme a imagem a seguir:
 
-![alt text](https://github.com/seraphritt/Trab_1_SB/blob/main/assets/Compiler_settings_2.png?raw=true)
+![alt text](https://github.com/seraphritt/Trab_1_SB/blob/main/assets/images/Compiler_settings_2.png?raw=true)
 
 4. Após isso, deve-se adicionar o nome do arquivo que será compilado. Isso pode ser feito em: Project > Set Program Arguments' . Selecione o modo em que está sendo feita a compilação (Debug ou Release) e escreva ``nome_do_arquivo.extensao`` no campo Program Arguments. A seguir temos duas imagens para melhor exemplificar.
 
