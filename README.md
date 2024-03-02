@@ -43,7 +43,7 @@ Este projeto é uma implementação de um tradutor em C++ que utiliza o algoritm
 
 4. Após isso, deve-se adicionar o nome do arquivo que será compilado. Isso pode ser feito em: Project > Set Program Arguments' . Selecione o modo em que está sendo feita a compilação (Debug ou Release) e escreva ``nome_do_arquivo.extensao`` no campo Program Arguments.
 
-5. Clique no ícone "Build and Run", comforme imagem.
+5. Clique no ícone "Build and Run".
 
 ### Compilação/execução do **Montador** via Terminal
 
